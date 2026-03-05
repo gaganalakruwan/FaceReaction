@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,68 +10,83 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import { EMOJIS } from '../../constants/emojis';
-import { saveReaction } from '../../api/reactionApi';
-import EmojiButton from '../../component/EmojiButton/EmojiButton';
+import { getReactTypes, saveReaction } from '../../api/reactionApi';
+import EmojiButton  from '../../component/EmojiButton/EmojiButton';
 import ThankYouCard from '../../component/ThankYouCard/ThankYouCard';
 
 const { width } = Dimensions.get('window');
-
-const ROW1 = EMOJIS.slice(0, 3); 
-const ROW2 = EMOJIS.slice(3);    
 
 // Delay before navigating to thank you (ms)
 const STAY_DURATION = 2000;
 
 export default function EmojiRatingScreen({
-  title = 'How was your experience?',
-  subtitle = 'Tap an emoji to rate us',
+  title      = 'How was your experience?',
+  subtitle   = 'Tap an emoji to rate us',
   apiBaseUrl = 'http://192.168.1.123/face_api',
   onSubmit,
 }) {
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [emojis,     setEmojis]     = useState([]);   // loaded from DB
+  const [fetching,   setFetching]   = useState(true); // loading spinner
+  const [fetchError, setFetchError] = useState(null); // fetch error msg
+
+  const [submitted,  setSubmitted]  = useState(false);
+  const [loading,    setLoading]    = useState(false);
   const [tappedItem, setTappedItem] = useState(null);
 
-  // Animation refs
-  const cardAnim = useRef(new Animated.Value(0)).current;
-  const formSlide = useRef(new Animated.Value(0)).current;
-  const formOpacity = useRef(new Animated.Value(1)).current;
-  const thankSlide = useRef(new Animated.Value(width)).current;
+  // ── Animation refs ─────────────────────────────────────────────────────────
+  const cardAnim     = useRef(new Animated.Value(0)).current;
+  const formSlide    = useRef(new Animated.Value(0)).current;
+  const formOpacity  = useRef(new Animated.Value(1)).current;
+  const thankSlide   = useRef(new Animated.Value(width)).current;
   const thankOpacity = useRef(new Animated.Value(0)).current;
-
-  // Pulsing ring around selected emoji while waiting
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim    = useRef(new Animated.Value(1)).current;
   const pulseOpacity = useRef(new Animated.Value(0)).current;
-  const pulseLoop = useRef(null);
+  const pulseLoop    = useRef(null);
 
-  // Card entrance
-  React.useEffect(() => {
-    Animated.spring(cardAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      speed: 12,
-      bounciness: 10,
-    }).start();
+  // ── Load emojis from API on mount ──────────────────────────────────────────
+  useEffect(() => {
+    loadEmojis();
   }, []);
 
-  // Start pulse animation on selected emoji
+  const loadEmojis = async () => {
+    setFetching(true);
+    setFetchError(null);
+    try {
+      const data = await getReactTypes(apiBaseUrl);
+      setEmojis(data);
+    } catch (err) {
+      setFetchError(err.message);
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // Card entrance after emojis load
+  useEffect(() => {
+    if (!fetching && emojis.length > 0) {
+      Animated.spring(cardAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 12,
+        bounciness: 10,
+      }).start();
+    }
+  }, [fetching]);
+
+  // ── Split emojis into 2 rows ───────────────────────────────────────────────
+  const ROW1 = emojis.slice(0, 3); // 😡 😞 😐
+  const ROW2 = emojis.slice(3);    // 🙂 😍
+
+  // ── Pulse helpers ──────────────────────────────────────────────────────────
   const startPulse = () => {
     pulseAnim.setValue(1);
     pulseOpacity.setValue(0.7);
-
     pulseLoop.current = Animated.loop(
       Animated.parallel([
-        Animated.timing(pulseAnim, {
-          toValue: 2.2,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseOpacity, {
-          toValue: 0,
-          duration: 700,
-          useNativeDriver: true,
-        }),
+        Animated.timing(pulseAnim,    { toValue: 2.2, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulseOpacity, { toValue: 0,   duration: 700, useNativeDriver: true }),
       ])
     );
     pulseLoop.current.start();
@@ -83,33 +98,32 @@ export default function EmojiRatingScreen({
     pulseOpacity.setValue(0);
   };
 
-  // form - thank you
+  // ── form → thank you transition ────────────────────────────────────────────
   const goToThankYou = () => {
     stopPulse();
     Animated.parallel([
-      Animated.timing(formSlide, { toValue: -width * 0.35, duration: 360, useNativeDriver: true }),
-      Animated.timing(formOpacity, { toValue: 0, duration: 270, useNativeDriver: true }),
-      Animated.spring(thankSlide, { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
+      Animated.timing(formSlide,    { toValue: -width * 0.35, duration: 360, useNativeDriver: true }),
+      Animated.timing(formOpacity,  { toValue: 0, duration: 270, useNativeDriver: true }),
+      Animated.spring(thankSlide,   { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
       Animated.timing(thankOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
     ]).start(() => setSubmitted(true));
   };
 
-  // Emoji tap handler
+  // ── Emoji tap → API → stay 2s → navigate ──────────────────────────────────
   const handleEmojiTap = async (index) => {
     if (loading || submitted || tappedItem) return; // prevent double tap
 
-    const item = EMOJIS[index];
+    const item = emojis[index];   // ← from DB
     setTappedItem(item);
     setLoading(true);
     startPulse();
 
     try {
-      // API call while staying on screen
       const result = await saveReaction(item.id, apiBaseUrl);
       onSubmit?.({ ...item, dbResponse: result });
       setLoading(false);
 
-      // Stay on screen for STAY_DURATION, then navigate
+      // Stay on screen for STAY_DURATION then navigate
       setTimeout(() => {
         Animated.sequence([
           Animated.timing(cardAnim, { toValue: 0.96, duration: 80, useNativeDriver: true }),
@@ -125,9 +139,34 @@ export default function EmojiRatingScreen({
     }
   };
 
-  const tappedIndex = tappedItem ? EMOJIS.indexOf(tappedItem) : null;
+  const tappedIndex = tappedItem ? emojis.indexOf(tappedItem) : null; // ← from DB
 
-  // Render
+  // ── Loading state ──────────────────────────────────────────────────────────
+  if (fetching) {
+    return (
+      <View style={styles.screen}>
+        <View style={styles.loadingCard}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingLabel}>Loading...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // ── Error state ────────────────────────────────────────────────────────────
+  if (fetchError) {
+    return (
+      <View style={styles.screen}>
+        <View style={styles.loadingCard}>
+          <Text style={styles.errorIcon}>⚠️</Text>
+          <Text style={styles.errorMsg}>{fetchError}</Text>
+          <Text style={styles.retryBtn} onPress={loadEmojis}>Tap to retry</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // ── Main Render ────────────────────────────────────────────────────────────
   return (
     <View style={styles.screen}>
       <Animated.View style={[
@@ -135,7 +174,7 @@ export default function EmojiRatingScreen({
         { transform: [{ scale: cardAnim }], opacity: cardAnim },
       ]}>
 
-        {/* FORM */}
+        {/* ══ FORM ══ */}
         <Animated.View
           style={[styles.page, {
             opacity: formOpacity,
@@ -146,22 +185,18 @@ export default function EmojiRatingScreen({
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{subtitle}</Text>
 
-          {/* Row 1: 😡 😞 😐 */}
+          {/* ── Row 1: 😡 😞 😐 ── */}
           <View style={styles.emojiRow}>
             {ROW1.map((item) => {
-              const index = EMOJIS.indexOf(item);
+              const index  = emojis.indexOf(item);
               const isThis = tappedIndex === index;
               return (
                 <View key={item.id} style={{ alignItems: 'center' }}>
-                  {/* Pulse ring behind selected emoji */}
                   {isThis && (
                     <Animated.View style={[
                       styles.pulseRing,
                       { borderColor: item.color },
-                      {
-                        opacity: pulseOpacity,
-                        transform: [{ scale: pulseAnim }],
-                      },
+                      { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
                     ]} />
                   )}
                   <EmojiButton
@@ -176,10 +211,10 @@ export default function EmojiRatingScreen({
             })}
           </View>
 
-          {/* Row 2: 🙂 😍 */}
+          {/* ── Row 2: 🙂 😍 ── */}
           <View style={styles.emojiRowCentered}>
             {ROW2.map((item) => {
-              const index = EMOJIS.indexOf(item);
+              const index  = emojis.indexOf(item);
               const isThis = tappedIndex === index;
               return (
                 <View key={item.id} style={{ alignItems: 'center' }}>
@@ -187,10 +222,7 @@ export default function EmojiRatingScreen({
                     <Animated.View style={[
                       styles.pulseRing,
                       { borderColor: item.color },
-                      {
-                        opacity: pulseOpacity,
-                        transform: [{ scale: pulseAnim }],
-                      },
+                      { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
                     ]} />
                   )}
                   <EmojiButton
@@ -205,7 +237,7 @@ export default function EmojiRatingScreen({
             })}
           </View>
 
-          {/* Status while waiting */}
+          {/* ── Status while waiting ── */}
           {tappedItem && (
             <Animated.View style={styles.statusRow}>
               {loading ? (
@@ -225,7 +257,7 @@ export default function EmojiRatingScreen({
 
         </Animated.View>
 
-        {/* THANK YOU */}
+        {/* ══ THANK YOU ══ */}
         <Animated.View style={[
           styles.page,
           styles.thankPage,
@@ -275,7 +307,7 @@ const styles = StyleSheet.create({
   },
   thankPage: {
     position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0, 
+    top: 0, left: 0, right: 0, bottom: 0,
     paddingHorizontal: 24,
     paddingVertical: 16,
   },
@@ -298,7 +330,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
+    marginTop: 16,
     minHeight: 24,
   },
   statusText: {
@@ -306,8 +338,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.2,
   },
-
-
   emojiRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -316,8 +346,6 @@ const styles = StyleSheet.create({
     minHeight: 110,
     marginBottom: 28,
   },
-
-  // Row 2 — 2 emojis centered
   emojiRowCentered: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -326,14 +354,38 @@ const styles = StyleSheet.create({
     minHeight: 110,
     marginBottom: 8,
   },
-
-  // Pulse ring behind selected emoji
   pulseRing: {
     position: 'absolute',
-    width: 68,
-    height: 68,
+    width: 68, height: 68,
     borderRadius: 34,
     borderWidth: 2.5,
     zIndex: -1,
+  },
+
+  // Loading / Error states
+  loadingCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 40,
+    alignItems: 'center',
+    width: '80%',
+  },
+  loadingLabel: {
+    marginTop: 14,
+    fontSize: 14,
+    color: '#ABABAB',
+    fontWeight: '600',
+  },
+  errorIcon: { fontSize: 36, marginBottom: 10 },
+  errorMsg: {
+    fontSize: 13,
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 14,
+  },
+  retryBtn: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '700',
   },
 });
