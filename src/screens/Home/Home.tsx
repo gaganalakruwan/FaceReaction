@@ -17,14 +17,14 @@ import ThankYouCard from '../../component/ThankYouCard/ThankYouCard';
 
 const { width } = Dimensions.get('window');
 
-const ROW1 = EMOJIS.slice(0, 3);
-const ROW2 = EMOJIS.slice(3);   
+const ROW1 = EMOJIS.slice(0, 3); 
+const ROW2 = EMOJIS.slice(3);    
 
 // Delay before navigating to thank you (ms)
 const STAY_DURATION = 2000;
 
 export default function EmojiRatingScreen({
-  title = 'How was your experience?',  
+  title = 'How was your experience?',
   subtitle = 'Tap an emoji to rate us',
   apiBaseUrl = 'http://192.168.1.123/face_api',
   onSubmit,
@@ -306,6 +306,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.2,
   },
+
+
   emojiRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -314,6 +316,8 @@ const styles = StyleSheet.create({
     minHeight: 110,
     marginBottom: 28,
   },
+
+  // Row 2 — 2 emojis centered
   emojiRowCentered: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -322,6 +326,8 @@ const styles = StyleSheet.create({
     minHeight: 110,
     marginBottom: 8,
   },
+
+  // Pulse ring behind selected emoji
   pulseRing: {
     position: 'absolute',
     width: 68,
