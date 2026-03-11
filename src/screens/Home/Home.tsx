@@ -22,7 +22,7 @@ const STAY_DURATION = 2000;
 export default function EmojiRatingScreen({
   title      = 'How was your experience?',
   subtitle   = 'Tap an emoji to rate us',
-  apiBaseUrl = 'http://192.168.1.123/face_api',
+  apiBaseUrl = 'https://aws.erav.lk/face_react_api/',
   onSubmit,
 }) {
 
@@ -45,7 +45,7 @@ export default function EmojiRatingScreen({
   const pulseOpacity = useRef(new Animated.Value(0)).current;
   const pulseLoop    = useRef(null);
 
-  // Load emojis from API on mount 
+  // Load emojis from API on mount
   useEffect(() => {
     loadEmojis();
   }, []);
@@ -76,7 +76,7 @@ export default function EmojiRatingScreen({
   }, [fetching]);
 
   // Split emojis into 2 rows
-  const ROW1 = emojis.slice(0, 3); 
+  const ROW1 = emojis.slice(0, 3);
   const ROW2 = emojis.slice(3);
 
   // Pulse helpers
@@ -98,7 +98,7 @@ export default function EmojiRatingScreen({
     pulseOpacity.setValue(0);
   };
 
-  //  form - thank you transition
+  // form - thank you transition
   const goToThankYou = () => {
     stopPulse();
     Animated.parallel([
@@ -109,11 +109,30 @@ export default function EmojiRatingScreen({
     ]).start(() => setSubmitted(true));
   };
 
-  // Emoji tap - API - stay 2s - navigate 
+  // thank you - back to emoji form (Try Again)
+  const goBackToForm = () => {
+    thankSlide.setValue(0);
+    formSlide.setValue(-width * 0.35);
+    formOpacity.setValue(0);
+    Animated.parallel([
+      Animated.timing(thankSlide,   { toValue: width, duration: 320, useNativeDriver: true }),
+      Animated.timing(thankOpacity, { toValue: 0,     duration: 250, useNativeDriver: true }),
+      Animated.spring(formSlide,    { toValue: 0,     useNativeDriver: true, speed: 14, bounciness: 8 }),
+      Animated.timing(formOpacity,  { toValue: 1,     duration: 340, useNativeDriver: true }),
+    ]).start(() => {
+      setSubmitted(false);
+      setTappedItem(null);
+      setLoading(false);
+      thankSlide.setValue(width);
+      thankOpacity.setValue(0);
+    });
+  };
+
+  // Emoji tap - API - stay 2s - navigate
   const handleEmojiTap = async (index) => {
     if (loading || submitted || tappedItem) return; // prevent double tap
 
-    const item = emojis[index];   // ← from DB
+    const item = emojis[index];   // from DB
     setTappedItem(item);
     setLoading(true);
     startPulse();
@@ -139,9 +158,9 @@ export default function EmojiRatingScreen({
     }
   };
 
-  const tappedIndex = tappedItem ? emojis.indexOf(tappedItem) : null; // from DB
+  const tappedIndex = tappedItem ? emojis.indexOf(tappedItem) : null; // ← from DB
 
-  // Loading state 
+  // Loading state
   if (fetching) {
     return (
       <View style={styles.screen}>
@@ -153,7 +172,7 @@ export default function EmojiRatingScreen({
     );
   }
 
-  //  Error state 
+  // Error state
   if (fetchError) {
     return (
       <View style={styles.screen}>
@@ -166,7 +185,7 @@ export default function EmojiRatingScreen({
     );
   }
 
-  // Main Render 
+  // Main Render
   return (
     <View style={styles.screen}>
       <Animated.View style={[
@@ -174,7 +193,7 @@ export default function EmojiRatingScreen({
         { transform: [{ scale: cardAnim }], opacity: cardAnim },
       ]}>
 
-        {/*  FORM  */}
+        {/* ══ FORM ══ */}
         <Animated.View
           style={[styles.page, {
             opacity: formOpacity,
@@ -185,7 +204,7 @@ export default function EmojiRatingScreen({
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{subtitle}</Text>
 
-          {/*  Row 1: 😡 😞 😐  */}
+          {/* Row 1: 😡 😞 😐 */}
           <View style={styles.emojiRow}>
             {ROW1.map((item) => {
               const index  = emojis.indexOf(item);
@@ -211,7 +230,7 @@ export default function EmojiRatingScreen({
             })}
           </View>
 
-          {/*  Row 2: 🙂 😍  */}
+          {/* Row 2: 🙂 😍 */}
           <View style={styles.emojiRowCentered}>
             {ROW2.map((item) => {
               const index  = emojis.indexOf(item);
@@ -237,7 +256,7 @@ export default function EmojiRatingScreen({
             })}
           </View>
 
-          {/*  Status while waiting  */}
+          {/* Status while waiting */}
           {tappedItem && (
             <Animated.View style={styles.statusRow}>
               {loading ? (
@@ -269,6 +288,7 @@ export default function EmojiRatingScreen({
           <ThankYouCard
             selectedItem={tappedItem}
             visible={submitted}
+            onReset={goBackToForm}
           />
         </Animated.View>
 

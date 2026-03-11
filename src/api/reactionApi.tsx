@@ -1,5 +1,5 @@
-const BASE_URL = 'http://192.168.1.123/face_api';
- 
+const BASE_URL = 'https://aws.erav.lk/face_react_api/';
+
 const EMOJI_MAP = {
   'Terrible': { emoji: '😡', color: '#FF3B30', bg: '#FFF0EF' },
   'Bad':      { emoji: '😞', color: '#FF9500', bg: '#FFF6EC' },
@@ -7,7 +7,7 @@ const EMOJI_MAP = {
   'Good':     { emoji: '🙂', color: '#34C759', bg: '#EDFFF2' },
   'Amazing':  { emoji: '😍', color: '#007AFF', bg: '#EBF4FF' },
 };
-
+ 
 export async function getReactTypes(baseUrl = BASE_URL) {
   const response = await fetch(`${baseUrl}/get_react_types.php`);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);

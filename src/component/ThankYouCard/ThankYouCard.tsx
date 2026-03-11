@@ -4,8 +4,8 @@ import {
   View,
   Text,
   StyleSheet,
+  TouchableOpacity,
   Dimensions,
-  BackHandler,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -23,12 +23,11 @@ function ConfettiDot({ color, delay, startX, size }) {
       Animated.parallel([
         Animated.timing(opacity, { toValue: 1,    duration: 80,  useNativeDriver: true }),
         Animated.spring(scale,   { toValue: 1,    useNativeDriver: true, speed: 40, bounciness: 8 }),
-        Animated.timing(y,       { toValue: -140, duration: 900, useNativeDriver: true }),
+        Animated.timing(y,       { toValue: -280, duration: 900, useNativeDriver: true }),
         Animated.timing(rotate,  { toValue: 1,    duration: 900, useNativeDriver: true }),
       ]),
       Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
     ]).start();
-
   }, []);
 
   const spin = rotate.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
@@ -53,7 +52,7 @@ function CheckCircle({ color }) {
   const ring1   = useRef(new Animated.Value(0)).current;
   const ring2   = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => { 
+  useEffect(() => {
     Animated.sequence([
       Animated.delay(150),
       Animated.parallel([
@@ -68,64 +67,62 @@ function CheckCircle({ color }) {
 
   const ringStyle = (anim) => ({
     position: 'absolute',
-    width: 76, height: 76, borderRadius: 38,
-    borderWidth: 2, borderColor: color,
+    width: 80, height: 80, borderRadius: 40,
+    borderWidth: 2.5, borderColor: color,
     opacity: anim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 0] }),
     transform: [{ scale: anim.interpolate({ inputRange: [0, 1], outputRange: [1, 2.6] }) }],
   });
 
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 22, height: 100 }}>
+    <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 18, height: 100 }}>
       <Animated.View style={ringStyle(ring1)} />
       <Animated.View style={ringStyle(ring2)} />
       <Animated.View style={{
-        width: 76, 
-        height: 76, 
-        borderRadius: 38,
+        width: 80, height: 80, borderRadius: 40,
         backgroundColor: color,
-        alignItems: 'center', 
-        justifyContent: 'center',
+        alignItems: 'center', justifyContent: 'center',
         opacity,
         transform: [{ scale }],
         shadowColor: color,
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.45,
-        shadowRadius: 24,
-        elevation: 16,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
+        elevation: 12,
       }}>
-        <Text style={{ fontSize: 40, color: '#fff' }}>✓</Text>
+        <Text style={{ fontSize: 44, color: '#fff' }}>✓</Text>
       </Animated.View>
     </View>
   );
 }
 
 // Main ThankYouCard
-export default function ThankYouCard({ selectedItem, visible, onClose }) {
+export default function ThankYouCard({ selectedItem, visible, onReset }) {
   const slideAnim  = useRef(new Animated.Value(60)).current;
   const fadeAnim   = useRef(new Animated.Value(0)).current;
   const titleAnim  = useRef(new Animated.Value(0)).current;
   const subAnim    = useRef(new Animated.Value(0)).current;
   const badgeAnim  = useRef(new Animated.Value(0)).current;
+  const btnAnim    = useRef(new Animated.Value(0)).current;
   const badgePulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (!visible) return;
 
-    // 1. Container slides up + fades in
+    // Container slides up + fades in
     Animated.parallel([
       Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, speed: 16, bounciness: 10 }),
       Animated.timing(fadeAnim,  { toValue: 1, duration: 320, useNativeDriver: true }),
     ]).start();
 
-    // 2. Stagger children
-    [[titleAnim, 280], [subAnim, 400], [badgeAnim, 520]].forEach(([anim, delay]) => {
+    // Stagger: title - subtitle - badge - button
+    [[titleAnim, 280], [subAnim, 400], [badgeAnim, 520], [btnAnim, 660]].forEach(([anim, delay]) => {
       Animated.sequence([
-    
         Animated.delay(delay),
         Animated.spring(anim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 8 }),
       ]).start();
     });
-    // 3. Badge pulse loop
+
+    // Badge pulse loop
     setTimeout(() => {
       Animated.loop(
         Animated.sequence([
@@ -135,20 +132,18 @@ export default function ThankYouCard({ selectedItem, visible, onClose }) {
       ).start();
     }, 850);
 
-    // 4. After 2.5s - fade everything out - close app
-    const closeTimer = setTimeout(() => {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 800,       // slow smooth fade out
-        useNativeDriver: true,
-      }).start(() => {
-        // Close app after fade completes
-        BackHandler.exitApp();
-      });
-    }, 2500);
-
-    return () => clearTimeout(closeTimer);
   }, [visible]);
+
+  // Try Again: fade out - reset to emoji form
+  const handleTryAgain = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      onReset?.();
+    });
+  };
 
   const confetti = [
     { color: '#FF3B30', delay: 180, startX: width * 0.02, size: 10 },
@@ -163,6 +158,8 @@ export default function ThankYouCard({ selectedItem, visible, onClose }) {
 
   if (!visible) return null;
 
+  const accentColor = selectedItem?.color ?? '#34C759';
+
   return (
     <Animated.View style={[
       styles.container,
@@ -173,8 +170,8 @@ export default function ThankYouCard({ selectedItem, visible, onClose }) {
         {confetti.map((c, i) => <ConfettiDot key={i} {...c} />)}
       </View>
 
-      {/* Ripple Check */}
-      <CheckCircle color={selectedItem?.color ?? '#34C759'} />
+      {/* Check circle */}
+      <CheckCircle color={accentColor} />
 
       {/* Title */}
       <Animated.Text style={[styles.title, {
@@ -184,7 +181,6 @@ export default function ThankYouCard({ selectedItem, visible, onClose }) {
         Thank You! 🎉
       </Animated.Text>
 
-
       {/* Subtitle */}
       <Animated.Text style={[styles.subtitle, {
         opacity: subAnim,
@@ -193,50 +189,91 @@ export default function ThankYouCard({ selectedItem, visible, onClose }) {
         Your {selectedItem?.label?.toLowerCase()} feedback{'\n'}
         {selectedItem?.emoji}  has been saved!
       </Animated.Text>
+
+      {/* Try Again button */}
+      <Animated.View style={[
+        styles.btnWrap,
+        {
+          opacity: btnAnim,
+          transform: [{ scale: btnAnim.interpolate({ inputRange:[0,1], outputRange:[0.8,1] }) }],
+        },
+      ]}>
+        <TouchableOpacity
+          style={[styles.tryAgainBtn, { borderColor: accentColor }]}
+          onPress={handleTryAgain}
+          activeOpacity={0.75}
+        >
+          <Text style={[styles.tryAgainText, { color: accentColor }]}>
+            🔄  Try Again
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent:"center",
-    paddingVertical: 20,
+    justifyContent: 'center',
+    paddingVertical: 10,
     paddingHorizontal: 8,
   },
   confettiWrap: {
     position: 'absolute',
-    bottom: 40, 
-    left: -24, 
-    right: -24,
-    height: 160,
+    bottom: 0, top: 0, left: -24, right: -24,
+    height: '100%',
+    pointerEvents: 'none',
   },
   title: {
-    fontSize: 32, 
-    fontWeight: '900', 
+    fontSize: 32,
+    fontWeight: '900',
     color: '#1A1A2E',
-    marginBottom: 12, 
-    letterSpacing: -0.5, 
+    marginBottom: 10,
+    letterSpacing: -0.5,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#8E8E93',
-    textAlign: 'center', 
+    textAlign: 'center',
     lineHeight: 26,
-    marginBottom: 22, 
+    marginBottom: 20,
     paddingHorizontal: 16,
   },
   badge: {
-    backgroundColor: '#F0FFF4', 
+    backgroundColor: '#F0FFF4',
     borderRadius: 26,
-    paddingVertical: 10, 
-    paddingHorizontal: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 28,
     borderWidth: 1.5,
   },
-  badgeText: { 
-    fontSize: 14, 
-    fontWeight: '700', 
-    letterSpacing: 0.2 
+  badgeText: {
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  btnWrap: {
+    marginTop: 28,
+    width: '84%',
+  },
+  tryAgainBtn: {
+    borderWidth: 2,
+    borderRadius: 18,
+    paddingVertical: 16,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  tryAgainText: {
+    fontSize: 17,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
 });
