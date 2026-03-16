@@ -1,13 +1,13 @@
 const BASE_URL = 'https://aws.erav.lk/face_react_api/';
 
 const EMOJI_MAP = {
-  'Terrible': { emoji: '😡', color: '#FF3B30', bg: '#FFF0EF' },
-  'Bad':      { emoji: '😞', color: '#FF9500', bg: '#FFF6EC' },
-  'Okay':     { emoji: '😐', color: '#FFCC00', bg: '#FFFBEC' },
-  'Good':     { emoji: '🙂', color: '#34C759', bg: '#EDFFF2' },
-  'Amazing':  { emoji: '😍', color: '#007AFF', bg: '#EBF4FF' },
+  'Excellent': { emoji: '😍', color: '#007AFF', bg: '#EBF4FF' },
+  'Good': { emoji: '🙂', color: '#34C759', bg: '#EDFFF2' },
+  'Average': { emoji: '😐', color: '#FFCC00', bg: '#FFFBEC' },
+  'Poor': { emoji: '🙁', color: '#FF9500', bg: '#FFF6EC' },
+  'Very Poor': { emoji: '☹️', color: '#FF3B30', bg: '#FFF0EF' },
 };
- 
+
 export async function getReactTypes(baseUrl = BASE_URL) {
   const response = await fetch(`${baseUrl}/get_react_types.php`);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -18,18 +18,16 @@ export async function getReactTypes(baseUrl = BASE_URL) {
   return json.data.map((row) => {
     const mapped = EMOJI_MAP[row.type] ?? { emoji: '😶', color: '#8E8E93', bg: '#F5F5F5' };
     return {
-      id:    row.id,
+      id: row.id,
       label: row.type,
       emoji: mapped.emoji,
       color: mapped.color,
-      bg:    mapped.bg,
+      bg: mapped.bg,
+      sinhalaLabel: row.sinhala_type,
+      tamilLabel: row.tamil_type,
     };
   });
 }
-
-/**
- * POST save_reaction.php
- */
 export async function saveReaction(reactTypeId, baseUrl = BASE_URL) {
   console.log('📤 Sending react_type:', reactTypeId);
 
@@ -52,9 +50,6 @@ export async function saveReaction(reactTypeId, baseUrl = BASE_URL) {
   return json;
 }
 
-/**
- * GET all reaction logs
- */
 export async function getReactions(baseUrl = BASE_URL) {
   const response = await fetch(`${baseUrl}/get_reactions.php`);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);

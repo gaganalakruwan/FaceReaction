@@ -8,34 +8,36 @@ import {
   Alert,
   Dimensions,
   ActivityIndicator,
+  StatusBar,
+  useWindowDimensions,
 } from 'react-native';
-
 import { getReactTypes, saveReaction } from '../../api/reactionApi';
 import EmojiButton  from '../../component/EmojiButton/EmojiButton';
 import ThankYouCard from '../../component/ThankYouCard/ThankYouCard';
 
-const { width } = Dimensions.get('window');
-
-// Delay before navigating to thank you (ms)
-const STAY_DURATION = 2000;
+const STAY_DURATION      = 2000;   // ms to stay on emoji screen after tap
+const TABLET_BREAKPOINT  = 600;    // dp — anything wider is tablet
 
 export default function EmojiRatingScreen({
-  title      = 'How was your experience?',
-  subtitle   = 'Tap an emoji to rate us',
+  titleEn    = 'How do you rate our service?',
+  titleSi    = 'ඔබ අපගේ සේවාව තක්සේරු කරන්නේ කෙසේද?',
+  titleTa    = 'எங்கள் சேவையை நீங்கள் எப்படி மதிப்பிடுகிறீர்கள்?',
   apiBaseUrl = 'https://aws.erav.lk/face_react_api/',
   onSubmit,
 }) {
 
-  // State
-  const [emojis,     setEmojis]     = useState([]);   // loaded from DB
-  const [fetching,   setFetching]   = useState(true); // loading spinner
-  const [fetchError, setFetchError] = useState(null); // fetch error msg
+  const { width } = useWindowDimensions();
+  const isTablet  = width >= TABLET_BREAKPOINT;
 
+  // State
+  const [emojis,     setEmojis]     = useState([]);
+  const [fetching,   setFetching]   = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [submitted,  setSubmitted]  = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [tappedItem, setTappedItem] = useState(null);
 
-  // Animation refs
+  // Animations
   const cardAnim     = useRef(new Animated.Value(0)).current;
   const formSlide    = useRef(new Animated.Value(0)).current;
   const formOpacity  = useRef(new Animated.Value(1)).current;
@@ -45,10 +47,8 @@ export default function EmojiRatingScreen({
   const pulseOpacity = useRef(new Animated.Value(0)).current;
   const pulseLoop    = useRef(null);
 
-  // Load emojis from API on mount
-  useEffect(() => {
-    loadEmojis();
-  }, []);
+  // Load emojis
+  useEffect(() => { loadEmojis(); }, []);
 
   const loadEmojis = async () => {
     setFetching(true);
@@ -63,23 +63,15 @@ export default function EmojiRatingScreen({
     }
   };
 
-  // Card entrance after emojis load
   useEffect(() => {
     if (!fetching && emojis.length > 0) {
       Animated.spring(cardAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        speed: 12,
-        bounciness: 10,
+        toValue: 1, useNativeDriver: true, speed: 12, bounciness: 10,
       }).start();
     }
   }, [fetching]);
 
-  // Split emojis into 2 rows
-  const ROW1 = emojis.slice(0, 3);
-  const ROW2 = emojis.slice(3);
-
-  // Pulse helpers
+  // Pulse
   const startPulse = () => {
     pulseAnim.setValue(1);
     pulseOpacity.setValue(0.7);
@@ -98,7 +90,7 @@ export default function EmojiRatingScreen({
     pulseOpacity.setValue(0);
   };
 
-  // form - thank you transition
+  // form - thank you
   const goToThankYou = () => {
     stopPulse();
     Animated.parallel([
@@ -109,17 +101,20 @@ export default function EmojiRatingScreen({
     ]).start(() => setSubmitted(true));
   };
 
-  // thank you - back to emoji form (Try Again)
+  // thank you - emoji form (AUTO — called by ThankYouCard after 2.5s)
   const goBackToForm = () => {
+    // Reset thank you panel position
     thankSlide.setValue(0);
     formSlide.setValue(-width * 0.35);
     formOpacity.setValue(0);
+
     Animated.parallel([
       Animated.timing(thankSlide,   { toValue: width, duration: 320, useNativeDriver: true }),
       Animated.timing(thankOpacity, { toValue: 0,     duration: 250, useNativeDriver: true }),
       Animated.spring(formSlide,    { toValue: 0,     useNativeDriver: true, speed: 14, bounciness: 8 }),
       Animated.timing(formOpacity,  { toValue: 1,     duration: 340, useNativeDriver: true }),
     ]).start(() => {
+      // Reset all state so the screen is fresh for next customer
       setSubmitted(false);
       setTappedItem(null);
       setLoading(false);
@@ -128,11 +123,10 @@ export default function EmojiRatingScreen({
     });
   };
 
-  // Emoji tap - API - stay 2s - navigate
+  // Emoji tap
   const handleEmojiTap = async (index) => {
-    if (loading || submitted || tappedItem) return; // prevent double tap
-
-    const item = emojis[index];   // from DB
+    if (loading || submitted || tappedItem) return;
+    const item = emojis[index];
     setTappedItem(item);
     setLoading(true);
     startPulse();
@@ -142,11 +136,10 @@ export default function EmojiRatingScreen({
       onSubmit?.({ ...item, dbResponse: result });
       setLoading(false);
 
-      // Stay on screen for STAY_DURATION then navigate
       setTimeout(() => {
         Animated.sequence([
           Animated.timing(cardAnim, { toValue: 0.96, duration: 80, useNativeDriver: true }),
-          Animated.spring(cardAnim, { toValue: 1, useNativeDriver: true, speed: 22, bounciness: 4 }),
+          Animated.spring(cardAnim, { toValue: 1,    useNativeDriver: true, speed: 22, bounciness: 4 }),
         ]).start(() => goToThankYou());
       }, STAY_DURATION);
 
@@ -158,21 +151,48 @@ export default function EmojiRatingScreen({
     }
   };
 
-  const tappedIndex = tappedItem ? emojis.indexOf(tappedItem) : null; // ← from DB
+  const tappedIndex = tappedItem ? emojis.indexOf(tappedItem) : null;
 
-  // Loading state
+  // Phone layout: row of 3 + centred row of 2
+  const ROW1 = emojis.slice(0, 3);
+  const ROW2 = emojis.slice(3);
+
+  // Shared emoji cell
+  const renderEmojiCell = (item, i) => {
+    const isThis = tappedIndex === i;
+    return (
+      <View key={item.id} style={styles.emojiCell}>
+        {isThis && (
+          <Animated.View style={[
+            styles.pulseRing,
+            { borderColor: item.color },
+            { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
+          ]} />
+        )}
+        <EmojiButton
+          item={item}
+          index={i}
+          selected={tappedIndex}
+          onPress={handleEmojiTap}
+          disabled={!!tappedItem}
+        />
+      </View>
+    );
+  };
+
+  // Loading
   if (fetching) {
     return (
       <View style={styles.screen}>
         <View style={styles.loadingCard}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#4CAF50" />
           <Text style={styles.loadingLabel}>Loading...</Text>
         </View>
       </View>
     );
   }
 
-  // Error state
+  // Error
   if (fetchError) {
     return (
       <View style={styles.screen}>
@@ -188,6 +208,8 @@ export default function EmojiRatingScreen({
   // Main Render
   return (
     <View style={styles.screen}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
+
       <Animated.View style={[
         styles.card,
         { transform: [{ scale: cardAnim }], opacity: cardAnim },
@@ -201,62 +223,36 @@ export default function EmojiRatingScreen({
           }]}
           pointerEvents={submitted ? 'none' : 'auto'}
         >
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
-
-          {/* Row 1: 😡 😞 😐 */}
-          <View style={styles.emojiRow}>
-            {ROW1.map((item) => {
-              const index  = emojis.indexOf(item);
-              const isThis = tappedIndex === index;
-              return (
-                <View key={item.id} style={{ alignItems: 'center' }}>
-                  {isThis && (
-                    <Animated.View style={[
-                      styles.pulseRing,
-                      { borderColor: item.color },
-                      { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
-                    ]} />
-                  )}
-                  <EmojiButton
-                    item={item}
-                    index={index}
-                    selected={tappedIndex}
-                    onPress={handleEmojiTap}
-                    disabled={!!tappedItem}
-                  />
-                </View>
-              );
-            })}
+          {/* Title block */}
+          <View style={styles.titleSection}>
+            <Text style={styles.titleEn}>{titleEn}</Text>
+            <View style={styles.titleDivider} />
+            <Text style={styles.titleSi}>{titleSi}</Text>
+            <Text style={styles.titleTa}>{titleTa}</Text>
           </View>
 
-          {/* Row 2: 🙂 😍 */}
-          <View style={styles.emojiRowCentered}>
-            {ROW2.map((item) => {
-              const index  = emojis.indexOf(item);
-              const isThis = tappedIndex === index;
-              return (
-                <View key={item.id} style={{ alignItems: 'center' }}>
-                  {isThis && (
-                    <Animated.View style={[
-                      styles.pulseRing,
-                      { borderColor: item.color },
-                      { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
-                    ]} />
-                  )}
-                  <EmojiButton
-                    item={item}
-                    index={index}
-                    selected={tappedIndex}
-                    onPress={handleEmojiTap}
-                    disabled={!!tappedItem}
-                  />
-                </View>
-              );
-            })}
-          </View>
+          <View style={styles.divider} />
 
-          {/* Status while waiting */}
+          {/* TABLET: all 5 in one row */}
+          {isTablet && (
+            <View style={styles.emojiRowSingle}>
+              {emojis.map((item, i) => renderEmojiCell(item, i))}
+            </View>
+          )}
+
+          {/* PHONE: row of 3 + centred row of 2 */}
+          {!isTablet && (
+            <>
+              <View style={styles.emojiRowPhone}>
+                {ROW1.map((item) => renderEmojiCell(item, emojis.indexOf(item)))}
+              </View>
+              <View style={styles.emojiRowPhoneCentered}>
+                {ROW2.map((item) => renderEmojiCell(item, emojis.indexOf(item)))}
+              </View>
+            </>
+          )}
+
+          {/* Status while saving */}
           {tappedItem && (
             <Animated.View style={styles.statusRow}>
               {loading ? (
@@ -285,10 +281,11 @@ export default function EmojiRatingScreen({
             transform: [{ translateX: thankSlide }],
           },
         ]}>
+          {/* onDone triggers auto-return to emoji view — no button needed */}
           <ThankYouCard
             selectedItem={tappedItem}
             visible={submitted}
-            onReset={goBackToForm}
+            onDone={goBackToForm}
           />
         </Animated.View>
 
@@ -308,7 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 32,
     width: '92%',
-    maxWidth: 440,
+    maxWidth: 700,
     overflow: 'hidden',
     ...Platform.select({
       ios: {
@@ -321,30 +318,91 @@ const styles = StyleSheet.create({
     }),
   },
   page: {
-    paddingTop: 90,
-    paddingBottom: 44,
+    paddingBottom: 10,
     paddingHorizontal: 24,
   },
   thankPage: {
     position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0, 
+    left: 0, 
+    right: 0, 
+    bottom: 0,
     paddingHorizontal: 24,
     paddingVertical: 16,
   },
-  title: {
-    fontSize: 23,
-    fontWeight: '800',
+  titleSection: {
+    paddingTop: 22,
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+    alignItems: 'center',
+  },
+  titleEn: {
+    fontSize: 19,
+    fontWeight: '900',
     color: '#1A1A2E',
     textAlign: 'center',
-    letterSpacing: -0.5,
-    marginBottom: 6,
+    letterSpacing: -0.3,
+    marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#ABABAB',
+  titleDivider: {
+    width: 36, 
+    height: 2.5, 
+    borderRadius: 2,
+    backgroundColor: '#4CAF50',
+    marginBottom: 10,
+  },
+  titleSi: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#444',
     textAlign: 'center',
-    marginBottom: 32,
-    letterSpacing: 0.2,
+    lineHeight: 20,
+    marginBottom: 3,
+  },
+  titleTa: {
+    fontSize: 13,
+    fontWeight: '400',
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F0F0F0',
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  emojiRowSingle: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
+    paddingHorizontal: 8,
+    paddingBottom: 8,
+  },
+  emojiRowPhone: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 8,
+    marginBottom: 24,
+  },
+  emojiRowPhoneCentered: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 48,
+    marginBottom: 8,
+  },
+  emojiCell: { 
+    alignItems: 'center' 
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 68, 
+    height: 68, 
+    borderRadius: 34,
+    borderWidth: 2.5,
+    zIndex: -1,
   },
   statusRow: {
     flexDirection: 'row',
@@ -357,29 +415,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0.2,
-  },
-  emojiRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    paddingHorizontal: 8,
-    minHeight: 110,
-    marginBottom: 28,
-  },
-  emojiRowCentered: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    gap: 48,
-    minHeight: 110,
-    marginBottom: 8,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: 68, height: 68,
-    borderRadius: 34,
-    borderWidth: 2.5,
-    zIndex: -1,
   },
   loadingCard: {
     backgroundColor: '#fff',
@@ -394,7 +429,10 @@ const styles = StyleSheet.create({
     color: '#ABABAB',
     fontWeight: '600',
   },
-  errorIcon: { fontSize: 36, marginBottom: 10 },
+  errorIcon: { 
+    fontSize: 36, 
+    marginBottom: 10 
+  },
   errorMsg: {
     fontSize: 13,
     color: '#FF3B30',

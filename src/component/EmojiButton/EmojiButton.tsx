@@ -1,57 +1,53 @@
 import React, { useRef, useEffect } from 'react';
-import { Animated, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Animated, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 
 export default function EmojiButton({ item, index, selected, onPress, disabled = false }) {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const jumpAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim   = useRef(new Animated.Value(1)).current;
+  const jumpAnim    = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const rotateAnim  = useRef(new Animated.Value(0)).current;
 
-  const isSelected = selected === index;
+  const isSelected   = selected === index;
   const hasSelection = selected !== null;
-  const isDimmed = hasSelection && !isSelected;
+  const isDimmed     = hasSelection && !isSelected;
 
   // Tap handler
   const handlePress = () => {
     if (disabled) return;
 
     if (selected === index) {
-      // Deselect: float back to baseline
       Animated.parallel([
-        Animated.spring(jumpAnim, { toValue: 0, useNativeDriver: true, speed: 20, bounciness: 8 }),
-        Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 6 }),
+        Animated.spring(jumpAnim,   { toValue: 0, useNativeDriver: true, speed: 20, bounciness: 8 }),
+        Animated.spring(scaleAnim,  { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 6 }),
         Animated.spring(rotateAnim, { toValue: 0, useNativeDriver: true, speed: 20, bounciness: 6 }),
       ]).start();
     } else {
-      // 3-phase JUMP: squeeze → explode up + spin → bouncy elevated landing
       Animated.sequence([
-        // Phase 1 — pre-jump squeeze
-        Animated.spring(scaleAnim, {
-          toValue: 0.72, useNativeDriver: true, speed: 90, bounciness: 0,
-        }),
+        // Phase 1 — squeeze
+        Animated.spring(scaleAnim, { toValue: 0.72, useNativeDriver: true, speed: 90, bounciness: 0 }),
         // Phase 2 — shoot up
         Animated.parallel([
-          Animated.spring(jumpAnim, { toValue: -72, useNativeDriver: true, speed: 38, bounciness: 0 }),
-          Animated.spring(scaleAnim, { toValue: 1.6, useNativeDriver: true, speed: 38, bounciness: 0 }),
-          Animated.timing(rotateAnim, { toValue: 1, duration: 170, useNativeDriver: true }),
+          Animated.spring(jumpAnim,   { toValue: -72, useNativeDriver: true, speed: 38, bounciness: 0 }),
+          Animated.spring(scaleAnim,  { toValue: 1.6, useNativeDriver: true, speed: 38, bounciness: 0 }),
+          Animated.timing(rotateAnim, { toValue: 1,   duration: 170,         useNativeDriver: true }),
         ]),
-        // Phase 3 — bouncy landing, stays elevated
+        // Phase 3 — bouncy landing
         Animated.parallel([
-          Animated.spring(jumpAnim, { toValue: -46, useNativeDriver: true, speed: 16, bounciness: 20 }),
-          Animated.spring(scaleAnim, { toValue: 1.28, useNativeDriver: true, speed: 16, bounciness: 12 }),
-          Animated.spring(rotateAnim, { toValue: 0, useNativeDriver: true, speed: 16, bounciness: 12 }),
+          Animated.spring(jumpAnim,   { toValue: -46, useNativeDriver: true, speed: 16, bounciness: 20 }),
+          Animated.spring(scaleAnim,  { toValue: 1.28, useNativeDriver: true, speed: 16, bounciness: 12 }),
+          Animated.spring(rotateAnim, { toValue: 0,   useNativeDriver: true, speed: 16, bounciness: 12 }),
         ]),
       ]).start();
     }
     onPress(index);
   };
 
-  // Sync with external selection changes
+  // Sync with external selection
   useEffect(() => {
     if (!isSelected) {
       Animated.parallel([
-        Animated.spring(jumpAnim, { toValue: 0, useNativeDriver: true, speed: 22, bounciness: 6 }),
-        Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 22, bounciness: 6 }),
+        Animated.spring(jumpAnim,   { toValue: 0, useNativeDriver: true, speed: 22, bounciness: 6 }),
+        Animated.spring(scaleAnim,  { toValue: 1, useNativeDriver: true, speed: 22, bounciness: 6 }),
         Animated.spring(rotateAnim, { toValue: 0, useNativeDriver: true, speed: 22, bounciness: 6 }),
       ]).start();
     }
@@ -65,11 +61,15 @@ export default function EmojiButton({ item, index, selected, onPress, disabled =
   const spin = rotateAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '18deg'] });
 
   return (
-    <Animated.View style={{
-      alignItems: 'center',
-      opacity: opacityAnim,
-      transform: [{ translateY: jumpAnim }, { scale: scaleAnim }, { rotate: spin }],
-    }}>
+    <Animated.View style={[
+      styles.wrapper,
+      {
+        opacity: opacityAnim,
+        transform: [{ translateY: jumpAnim }, { scale: scaleAnim }, { rotate: spin }],
+      },
+    ]}>
+
+      {/* Face circle */}
       <TouchableOpacity
         activeOpacity={0.88}
         onPress={handlePress}
@@ -90,33 +90,74 @@ export default function EmojiButton({ item, index, selected, onPress, disabled =
       >
         <Text style={styles.emoji}>{item.emoji}</Text>
       </TouchableOpacity>
-      <Text style={[styles.label, isSelected && { color: item.color, fontWeight: '700' }]}>
-        {item.label}
-      </Text>
+
+      {/* 3 labels */}
+      <View style={styles.labelBlock}>
+
+        {/* English — bold, dark */}
+        <Text style={[styles.labelEn, isSelected && { color: item.color, fontWeight: '800' }]}>
+          {item.label}
+        </Text>
+
+        {/* Sinhala — medium weight, lighter */}
+        {!!item.sinhalaLabel && (
+          <Text style={[styles.labelSi, isSelected && { color: item.color }]}>
+            {item.sinhalaLabel}
+          </Text>
+        )}
+
+        {/* Tamil — lightest */}
+        {!!item.tamilLabel && (
+          <Text style={[styles.labelTa, isSelected && { color: item.color }]}>
+            {item.tamilLabel}
+          </Text>
+        )}
+
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    alignItems: 'center',
+    width: 68,
+  },
   btn: {
     width: 86,
     height: 86,
     borderRadius: 60,
-    backgroundColor: '#f3f0f0ff',
+    backgroundColor: '#F3F0F0',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
   },
   emoji: {
-    fontSize: 56
+    fontSize: 46,
   },
-  label: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#ABABAB',
-    marginTop: 6,
+  labelBlock: {
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 3,
+  },
+  labelEn: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#2C2C2E',
     textAlign: 'center',
     letterSpacing: 0.1,
+  },
+  labelSi: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#636366',
+    textAlign: 'center',
+  },
+  labelTa: {
+    fontSize: 10,
+    fontWeight: '400',
+    color: '#8E8E93',
+    textAlign: 'center',
   },
 });
