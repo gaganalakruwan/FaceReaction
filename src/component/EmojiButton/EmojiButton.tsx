@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   labelSi: {
     fontSize: 10,
     fontWeight: '500',
-    color: '#636366',
+    color: '#4d4d50ff',
     textAlign: 'center',
   },
   labelTa: {

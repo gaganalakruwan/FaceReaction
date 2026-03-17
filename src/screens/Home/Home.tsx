@@ -12,40 +12,40 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { getReactTypes, saveReaction } from '../../api/reactionApi';
-import EmojiButton  from '../../component/EmojiButton/EmojiButton';
+import EmojiButton from '../../component/EmojiButton/EmojiButton';
 import ThankYouCard from '../../component/ThankYouCard/ThankYouCard';
 
-const STAY_DURATION      = 2000;   // ms to stay on emoji screen after tap
-const TABLET_BREAKPOINT  = 600;    // dp — anything wider is tablet
+const STAY_DURATION = 2000;   // ms to stay on emoji screen after tap
+const TABLET_BREAKPOINT = 600;    // dp — anything wider is tablet
 
 export default function EmojiRatingScreen({
-  titleEn    = 'How do you rate our service?',
-  titleSi    = 'ඔබ අපගේ සේවාව තක්සේරු කරන්නේ කෙසේද?',
-  titleTa    = 'எங்கள் சேவையை நீங்கள் எப்படி மதிப்பிடுகிறீர்கள்?',
+  titleEn = 'How do you rate our service?',
+  titleSi = 'ඔබ අපගේ සේවාව තක්සේරු කරන්නේ කෙසේද?',
+  titleTa = 'எங்கள் சேவையை நீங்கள் எப்படி மதிப்பிடுகிறீர்கள்?',
   apiBaseUrl = 'https://aws.erav.lk/face_react_api/',
   onSubmit,
 }) {
 
   const { width } = useWindowDimensions();
-  const isTablet  = width >= TABLET_BREAKPOINT;
+  const isTablet = width >= TABLET_BREAKPOINT;
 
   // State
-  const [emojis,     setEmojis]     = useState([]);
-  const [fetching,   setFetching]   = useState(true);
+  const [emojis, setEmojis] = useState([]);
+  const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState(null);
-  const [submitted,  setSubmitted]  = useState(false);
-  const [loading,    setLoading]    = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [tappedItem, setTappedItem] = useState(null);
 
   // Animations
-  const cardAnim     = useRef(new Animated.Value(0)).current;
-  const formSlide    = useRef(new Animated.Value(0)).current;
-  const formOpacity  = useRef(new Animated.Value(1)).current;
-  const thankSlide   = useRef(new Animated.Value(width)).current;
+  const cardAnim = useRef(new Animated.Value(0)).current;
+  const formSlide = useRef(new Animated.Value(0)).current;
+  const formOpacity = useRef(new Animated.Value(1)).current;
+  const thankSlide = useRef(new Animated.Value(width)).current;
   const thankOpacity = useRef(new Animated.Value(0)).current;
-  const pulseAnim    = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
   const pulseOpacity = useRef(new Animated.Value(0)).current;
-  const pulseLoop    = useRef(null);
+  const pulseLoop = useRef(null);
 
   // Load emojis
   useEffect(() => { loadEmojis(); }, []);
@@ -77,8 +77,8 @@ export default function EmojiRatingScreen({
     pulseOpacity.setValue(0.7);
     pulseLoop.current = Animated.loop(
       Animated.parallel([
-        Animated.timing(pulseAnim,    { toValue: 2.2, duration: 700, useNativeDriver: true }),
-        Animated.timing(pulseOpacity, { toValue: 0,   duration: 700, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 2.2, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulseOpacity, { toValue: 0, duration: 700, useNativeDriver: true }),
       ])
     );
     pulseLoop.current.start();
@@ -94,9 +94,9 @@ export default function EmojiRatingScreen({
   const goToThankYou = () => {
     stopPulse();
     Animated.parallel([
-      Animated.timing(formSlide,    { toValue: -width * 0.35, duration: 360, useNativeDriver: true }),
-      Animated.timing(formOpacity,  { toValue: 0, duration: 270, useNativeDriver: true }),
-      Animated.spring(thankSlide,   { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
+      Animated.timing(formSlide, { toValue: -width * 0.35, duration: 360, useNativeDriver: true }),
+      Animated.timing(formOpacity, { toValue: 0, duration: 270, useNativeDriver: true }),
+      Animated.spring(thankSlide, { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
       Animated.timing(thankOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
     ]).start(() => setSubmitted(true));
   };
@@ -109,10 +109,10 @@ export default function EmojiRatingScreen({
     formOpacity.setValue(0);
 
     Animated.parallel([
-      Animated.timing(thankSlide,   { toValue: width, duration: 320, useNativeDriver: true }),
-      Animated.timing(thankOpacity, { toValue: 0,     duration: 250, useNativeDriver: true }),
-      Animated.spring(formSlide,    { toValue: 0,     useNativeDriver: true, speed: 14, bounciness: 8 }),
-      Animated.timing(formOpacity,  { toValue: 1,     duration: 340, useNativeDriver: true }),
+      Animated.timing(thankSlide, { toValue: width, duration: 320, useNativeDriver: true }),
+      Animated.timing(thankOpacity, { toValue: 0, duration: 250, useNativeDriver: true }),
+      Animated.spring(formSlide, { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
+      Animated.timing(formOpacity, { toValue: 1, duration: 340, useNativeDriver: true }),
     ]).start(() => {
       // Reset all state so the screen is fresh for next customer
       setSubmitted(false);
@@ -139,7 +139,7 @@ export default function EmojiRatingScreen({
       setTimeout(() => {
         Animated.sequence([
           Animated.timing(cardAnim, { toValue: 0.96, duration: 80, useNativeDriver: true }),
-          Animated.spring(cardAnim, { toValue: 1,    useNativeDriver: true, speed: 22, bounciness: 4 }),
+          Animated.spring(cardAnim, { toValue: 1, useNativeDriver: true, speed: 22, bounciness: 4 }),
         ]).start(() => goToThankYou());
       }, STAY_DURATION);
 
@@ -215,7 +215,7 @@ export default function EmojiRatingScreen({
         { transform: [{ scale: cardAnim }], opacity: cardAnim },
       ]}>
 
-        {/* ══ FORM ══ */}
+        {/* FORM */}
         <Animated.View
           style={[styles.page, {
             opacity: formOpacity,
@@ -225,10 +225,10 @@ export default function EmojiRatingScreen({
         >
           {/* Title block */}
           <View style={styles.titleSection}>
-            <Text style={styles.titleEn}>{titleEn}</Text>
-            <View style={styles.titleDivider} />
             <Text style={styles.titleSi}>{titleSi}</Text>
+            <View style={styles.titleDivider} />
             <Text style={styles.titleTa}>{titleTa}</Text>
+            <Text style={styles.titleEn}>{titleEn}</Text>
           </View>
 
           <View style={styles.divider} />
@@ -323,9 +323,9 @@ const styles = StyleSheet.create({
   },
   thankPage: {
     position: 'absolute',
-    top: 0, 
-    left: 0, 
-    right: 0, 
+    top: 0,
+    left: 0,
+    right: 0,
     bottom: 0,
     paddingHorizontal: 24,
     paddingVertical: 16,
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     alignItems: 'center',
   },
-  titleEn: {
+  titleSi: {
     fontSize: 19,
     fontWeight: '900',
     color: '#1A1A2E',
@@ -345,13 +345,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   titleDivider: {
-    width: 36, 
-    height: 2.5, 
+    width: 36,
+    height: 2.5,
     borderRadius: 2,
     backgroundColor: '#4CAF50',
     marginBottom: 10,
   },
-  titleSi: {
+  titleTa: {
     fontSize: 13,
     fontWeight: '500',
     color: '#444',
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 3,
   },
-  titleTa: {
+  titleEn: {
     fontSize: 13,
     fontWeight: '400',
     color: '#666',
@@ -393,13 +393,13 @@ const styles = StyleSheet.create({
     gap: 48,
     marginBottom: 8,
   },
-  emojiCell: { 
-    alignItems: 'center' 
+  emojiCell: {
+    alignItems: 'center'
   },
   pulseRing: {
     position: 'absolute',
-    width: 68, 
-    height: 68, 
+    width: 68,
+    height: 68,
     borderRadius: 34,
     borderWidth: 2.5,
     zIndex: -1,
@@ -429,9 +429,9 @@ const styles = StyleSheet.create({
     color: '#ABABAB',
     fontWeight: '600',
   },
-  errorIcon: { 
-    fontSize: 36, 
-    marginBottom: 10 
+  errorIcon: {
+    fontSize: 36,
+    marginBottom: 10
   },
   errorMsg: {
     fontSize: 13,

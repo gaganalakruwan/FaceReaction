@@ -28,6 +28,7 @@ export async function getReactTypes(baseUrl = BASE_URL) {
     };
   });
 }
+
 export async function saveReaction(reactTypeId, baseUrl = BASE_URL) {
   console.log('📤 Sending react_type:', reactTypeId);
 
