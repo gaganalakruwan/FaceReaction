@@ -15,7 +15,7 @@ import { getReactTypes, saveReaction } from '../../api/reactionApi';
 import EmojiButton from '../../component/EmojiButton/EmojiButton';
 import ThankYouCard from '../../component/ThankYouCard/ThankYouCard';
 
-const STAY_DURATION = 2000;   // ms to stay on emoji screen after tap
+const STAY_DURATION = 1000;   // ms to stay on emoji screen after tap
 const TABLET_BREAKPOINT = 600;    // dp — anything wider is tablet
 
 export default function EmojiRatingScreen({
@@ -352,15 +352,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   titleTa: {
-    fontSize: 13,
+    fontSize: 19,
     fontWeight: '500',
     color: '#444',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 25,
     marginBottom: 3,
   },
   titleEn: {
-    fontSize: 13,
+    fontSize: 19,
     fontWeight: '400',
     color: '#666',
     textAlign: 'center',

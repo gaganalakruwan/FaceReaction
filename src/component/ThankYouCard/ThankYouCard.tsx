@@ -7,51 +7,7 @@ import {
 } from 'react-native';
 import { scale } from '../../constants/scale'; 
 
-const DISPLAY_DURATION = 3000;
-
-// Confetti dot
-function ConfettiDot({ color, delay, offsetX, size }) {
-  const y        = useRef(new Animated.Value(0)).current;
-  const opacity  = useRef(new Animated.Value(0)).current;
-  const rotate   = useRef(new Animated.Value(0)).current;
-  const dotScale = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.sequence([
-      Animated.delay(delay),
-      Animated.parallel([
-        Animated.timing(opacity,  { toValue: 1,    duration: 80,   useNativeDriver: true }),
-        Animated.spring(dotScale, { toValue: 1,    useNativeDriver: true, speed: 40, bounciness: 8 }),
-        Animated.timing(y,        { toValue: -260, duration: 1000, useNativeDriver: true }),
-        Animated.timing(rotate,   { toValue: 1,    duration: 1000, useNativeDriver: true }),
-      ]),
-      Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  const spin = rotate.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-
-  return (
-    <Animated.View style={{
-      position:        'absolute',
-      bottom:          0,
-      // offsetX is a negative/positive value from center (translateX)
-      // We position each dot at center, then shift by offsetX
-      alignSelf:       'center',
-      width:           size,
-      height:          size,
-      borderRadius:    size / 4,
-      backgroundColor: color,
-      opacity,
-      transform: [
-        { translateX: offsetX },
-        { translateY: y },
-        { rotate: spin },
-        { scale: dotScale },
-      ],
-    }} />
-  );
-}
+const DISPLAY_DURATION = 1000;
 
 // Ripple check circle
 function CheckCircle({ color }) {
@@ -66,12 +22,12 @@ function CheckCircle({ color }) {
     Animated.sequence([
       Animated.delay(150),
       Animated.parallel([
-        Animated.spring(circleScale, { toValue: 1, useNativeDriver: true, speed: 16, bounciness: 22 }),
-        Animated.timing(opacity,     { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.spring(circleScale, { toValue: 1, useNativeDriver: true, speed: 8, bounciness: 22 }),
+        Animated.timing(opacity,     { toValue: 1, duration: 100, useNativeDriver: true }),
       ]),
     ]).start();
-    setTimeout(() => Animated.timing(ring1, { toValue: 1, duration: 700, useNativeDriver: true }).start(), 350);
-    setTimeout(() => Animated.timing(ring2, { toValue: 1, duration: 700, useNativeDriver: true }).start(), 600);
+    setTimeout(() => Animated.timing(ring1, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 350);
+    setTimeout(() => Animated.timing(ring2, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 600);
   }, []);
 
   const ringStyle = (anim) => ({
@@ -124,8 +80,8 @@ export default function ThankYouCard({ selectedItem, visible, onDone }) {
 
     // Entrance
     Animated.parallel([
-      Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, speed: 16, bounciness: 10 }),
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 320, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, speed: 8, bounciness: 10 }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 220, useNativeDriver: true }),
     ]).start();
 
     // Stagger: title - subtitle - badge
@@ -156,20 +112,6 @@ export default function ThankYouCard({ selectedItem, visible, onDone }) {
     };
   }, [visible]);
 
-  // offsetX spreads dots symmetrically around center (negative = left, positive = right)
-  // 8 dots spaced ~scale(40) apart, centered at 0
-  const STEP = scale(40);
-  const confetti = [
-    { color: '#FF3B30', delay: 100, offsetX: -STEP * 3.5, size: scale(10) },
-    { color: '#FF9500', delay: 180, offsetX: -STEP * 2.5, size: scale(8)  },
-    { color: '#FFCC00', delay: 80,  offsetX: -STEP * 1.5, size: scale(13) },
-    { color: '#34C759', delay: 220, offsetX: -STEP * 0.5, size: scale(9)  },
-    { color: '#007AFF', delay: 140, offsetX:  STEP * 0.5, size: scale(12) },
-    { color: '#AF52DE', delay: 200, offsetX:  STEP * 1.5, size: scale(8)  },
-    { color: '#FF2D55', delay: 160, offsetX:  STEP * 2.5, size: scale(10) },
-    { color: '#34C759', delay: 240, offsetX:  STEP * 3.5, size: scale(9)  },
-  ];
-
   if (!visible) return null;
 
   const accentColor = selectedItem?.color ?? '#34C759';
@@ -179,11 +121,6 @@ export default function ThankYouCard({ selectedItem, visible, onDone }) {
       styles.container,
       { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
     ]}>
-
-      {/* Confetti — all dots start from bottom center, spread by offsetX */}
-      <View style={styles.confettiWrap} pointerEvents="none">
-        {confetti.map((c, i) => <ConfettiDot key={i} {...c} />)}
-      </View>
 
       {/* Check circle */}
       <CheckCircle color={accentColor} />
@@ -216,12 +153,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical:   scale(10),
     paddingHorizontal: scale(8),
-  },
-  confettiWrap: {
-    position: 'absolute',
-    top: 0, bottom: 0, left: 0, right: 0,
-    alignItems:     'center',
-    justifyContent: 'flex-end',
   },
   title: {
     fontSize:      scale(30),

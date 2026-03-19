@@ -94,24 +94,24 @@ export default function EmojiButton({ item, index, selected, onPress, disabled =
       {/* 3 labels */}
       <View style={styles.labelBlock}>
 
-        {/* English — bold, dark */}
-        <Text style={[styles.labelEn, isSelected && { color: item.color, fontWeight: '800' }]}>
-          {item.label}
-        </Text>
-
-        {/* Sinhala — medium weight, lighter */}
+        {/* Sinhala — bold, dark */}
         {!!item.sinhalaLabel && (
           <Text style={[styles.labelSi, isSelected && { color: item.color }]}>
             {item.sinhalaLabel}
           </Text>
         )}
 
-        {/* Tamil — lightest */}
+        {/* Tamil — medium weight, lighter */}
         {!!item.tamilLabel && (
           <Text style={[styles.labelTa, isSelected && { color: item.color }]}>
             {item.tamilLabel}
           </Text>
         )}
+
+        {/* English — lightest */}
+        <Text style={[styles.labelEn, isSelected && { color: item.color, fontWeight: '800' }]}>
+          {item.label}
+        </Text>
 
       </View>
     </Animated.View>
@@ -141,21 +141,21 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 3,
   },
-  labelEn: {
+  labelSi: {
     fontSize: 11,
     fontWeight: '700',
     color: '#2C2C2E',
     textAlign: 'center',
     letterSpacing: 0.1,
   },
-  labelSi: {
-    fontSize: 10,
-    fontWeight: '500',
-    color: '#4d4d50ff',
+  labelTa: {
+    fontSize: 11,
+    fontWeight: '400',
+    color: '#4a4a4bff',
     textAlign: 'center',
   },
-  labelTa: {
-    fontSize: 10,
+  labelEn: {
+    fontSize: 11,
     fontWeight: '400',
     color: '#8E8E93',
     textAlign: 'center',
