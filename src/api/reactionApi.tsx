@@ -1,4 +1,4 @@
-const BASE_URL = 'https://aws.erav.lk/face_react_api/';
+const BASE_URL = 'http://192.168.1.122/face_api/';
 
 const EMOJI_MAP = {
   'Excellent': { emoji: '😍', color: '#007AFF', bg: '#EBF4FF' },

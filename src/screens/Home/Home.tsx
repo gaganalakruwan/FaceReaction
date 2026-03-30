@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
+  Image,
   Animated,
   StyleSheet,
   Platform,
@@ -22,7 +23,7 @@ export default function EmojiRatingScreen({
   titleEn = 'How do you rate our service?',
   titleSi = 'ඔබ අපගේ සේවාව තක්සේරු කරන්නේ කෙසේද?',
   titleTa = 'எங்கள் சேவையை நீங்கள் எப்படி மதிப்பிடுகிறீர்கள்?',
-  apiBaseUrl = 'https://aws.erav.lk/face_react_api/',
+  apiBaseUrl = 'http://192.168.1.122/face_api/',
   onSubmit,
 }) {
 
@@ -210,6 +211,12 @@ export default function EmojiRatingScreen({
     <View style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
 
+      <Image 
+        source={require('../../assets/company_logo.jpeg')} 
+        style={styles.topLogo} 
+        resizeMode="contain" 
+      />
+
       <Animated.View style={[
         styles.card,
         { transform: [{ scale: cardAnim }], opacity: cardAnim },
@@ -290,6 +297,10 @@ export default function EmojiRatingScreen({
         </Animated.View>
 
       </Animated.View>
+
+      <Text style={styles.copyrightText}>
+        © {new Date().getFullYear()} eRav Technologies (Pvt) Ltd. All rights reserved.
+      </Text>
     </View>
   );
 }
@@ -300,6 +311,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F7',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  topLogo: {
+    width: 70,
+    height: 70,
+    marginBottom: 5,
+    borderRadius: 50,
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -331,40 +348,40 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   titleSection: {
-    paddingTop: 22,
+    paddingTop: 26,
     paddingHorizontal: 20,
-    paddingBottom: 14,
+    paddingBottom: 16,
     alignItems: 'center',
   },
   titleSi: {
-    fontSize: 19,
-    fontWeight: '900',
+    fontSize: 20,
+    fontWeight: '800',
     color: '#1A1A2E',
     textAlign: 'center',
     letterSpacing: -0.3,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   titleDivider: {
-    width: 36,
-    height: 2.5,
+    width: 48,
+    height: 3,
     borderRadius: 2,
     backgroundColor: '#4CAF50',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   titleTa: {
-    fontSize: 19,
+    fontSize: 17,
     fontWeight: '500',
     color: '#444',
     textAlign: 'center',
-    lineHeight: 25,
-    marginBottom: 3,
+    lineHeight: 24,
+    marginBottom: 6,
   },
   titleEn: {
-    fontSize: 19,
+    fontSize: 16,
     fontWeight: '400',
-    color: '#666',
+    color: '#777',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
   },
   divider: {
     height: 1,
@@ -381,27 +398,28 @@ const styles = StyleSheet.create({
   },
   emojiRowPhone: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'flex-start',
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     marginBottom: 24,
   },
   emojiRowPhoneCentered: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    gap: 48,
-    marginBottom: 8,
+    gap: 24,
+    marginBottom: 16,
   },
   emojiCell: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   pulseRing: {
     position: 'absolute',
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    borderWidth: 2.5,
+    top: -6,
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    borderWidth: 3,
     zIndex: -1,
   },
   statusRow: {
@@ -443,5 +461,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#007AFF',
     fontWeight: '700',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    alignItems: 'center',
+    width: '100%',
+  },
+  logo: {
+    width: 120,
+    height: 40,
+    marginBottom: 6,
+    opacity: 0.8,
+  },
+  copyrightText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#A0A0A0',
+    textAlign: 'center',
   },
 });
