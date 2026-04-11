@@ -15,9 +15,10 @@ import {
 import { getReactTypes, saveReaction } from '../../api/reactionApi';
 import EmojiButton from '../../component/EmojiButton/EmojiButton';
 import ThankYouCard from '../../component/ThankYouCard/ThankYouCard';
+import { getReactionTypesApi } from '../../services/reactionService';
 
-const STAY_DURATION = 1000;   // ms to stay on emoji screen after tap
-const TABLET_BREAKPOINT = 600;    // dp — anything wider is tablet
+const STAY_DURATION = 1000; // ms to stay on emoji screen after tap
+const TABLET_BREAKPOINT = 600; // dp — anything wider is tablet
 
 export default function EmojiRatingScreen({
   titleEn = 'How do you rate our service?',
@@ -26,7 +27,6 @@ export default function EmojiRatingScreen({
   apiBaseUrl = 'http://192.168.1.122/face_api/',
   onSubmit,
 }) {
-
   const { width } = useWindowDimensions();
   const isTablet = width >= TABLET_BREAKPOINT;
 
@@ -49,25 +49,40 @@ export default function EmojiRatingScreen({
   const pulseLoop = useRef(null);
 
   // Load emojis
-  useEffect(() => { loadEmojis(); }, []);
+  useEffect(() => {
+    loadEmojis();
+  }, []);
 
+  // const loadEmojis = async () => {
+  //   setFetching(true);
+  //   setFetchError(null);
+  //   try {
+  //     const data = await getReactTypes(apiBaseUrl);
+  //     setEmojis(data);
+  //   } catch (err) {
+  //     setFetchError(err.message);
+  //   } finally {
+  //     setFetching(false);
+  //   }
+  // };
   const loadEmojis = async () => {
     setFetching(true);
     setFetchError(null);
-    try {
-      const data = await getReactTypes(apiBaseUrl);
-      setEmojis(data);
-    } catch (err) {
-      setFetchError(err.message);
-    } finally {
-      setFetching(false);
-    }
+    await getReactionTypesApi()
+      .then(data => {
+        setEmojis(data.data);
+        setFetching(false);
+      })
+      .catch(err => setFetchError(err.message));
   };
 
   useEffect(() => {
     if (!fetching && emojis.length > 0) {
       Animated.spring(cardAnim, {
-        toValue: 1, useNativeDriver: true, speed: 12, bounciness: 10,
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 12,
+        bounciness: 10,
       }).start();
     }
   }, [fetching]);
@@ -78,9 +93,17 @@ export default function EmojiRatingScreen({
     pulseOpacity.setValue(0.7);
     pulseLoop.current = Animated.loop(
       Animated.parallel([
-        Animated.timing(pulseAnim, { toValue: 2.2, duration: 700, useNativeDriver: true }),
-        Animated.timing(pulseOpacity, { toValue: 0, duration: 700, useNativeDriver: true }),
-      ])
+        Animated.timing(pulseAnim, {
+          toValue: 2.2,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseOpacity, {
+          toValue: 0,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
     );
     pulseLoop.current.start();
   };
@@ -95,10 +118,27 @@ export default function EmojiRatingScreen({
   const goToThankYou = () => {
     stopPulse();
     Animated.parallel([
-      Animated.timing(formSlide, { toValue: -width * 0.35, duration: 360, useNativeDriver: true }),
-      Animated.timing(formOpacity, { toValue: 0, duration: 270, useNativeDriver: true }),
-      Animated.spring(thankSlide, { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
-      Animated.timing(thankOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+      Animated.timing(formSlide, {
+        toValue: -width * 0.35,
+        duration: 360,
+        useNativeDriver: true,
+      }),
+      Animated.timing(formOpacity, {
+        toValue: 0,
+        duration: 270,
+        useNativeDriver: true,
+      }),
+      Animated.spring(thankSlide, {
+        toValue: 0,
+        useNativeDriver: true,
+        speed: 14,
+        bounciness: 8,
+      }),
+      Animated.timing(thankOpacity, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
     ]).start(() => setSubmitted(true));
   };
 
@@ -110,10 +150,27 @@ export default function EmojiRatingScreen({
     formOpacity.setValue(0);
 
     Animated.parallel([
-      Animated.timing(thankSlide, { toValue: width, duration: 320, useNativeDriver: true }),
-      Animated.timing(thankOpacity, { toValue: 0, duration: 250, useNativeDriver: true }),
-      Animated.spring(formSlide, { toValue: 0, useNativeDriver: true, speed: 14, bounciness: 8 }),
-      Animated.timing(formOpacity, { toValue: 1, duration: 340, useNativeDriver: true }),
+      Animated.timing(thankSlide, {
+        toValue: width,
+        duration: 320,
+        useNativeDriver: true,
+      }),
+      Animated.timing(thankOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.spring(formSlide, {
+        toValue: 0,
+        useNativeDriver: true,
+        speed: 14,
+        bounciness: 8,
+      }),
+      Animated.timing(formOpacity, {
+        toValue: 1,
+        duration: 340,
+        useNativeDriver: true,
+      }),
     ]).start(() => {
       // Reset all state so the screen is fresh for next customer
       setSubmitted(false);
@@ -125,7 +182,7 @@ export default function EmojiRatingScreen({
   };
 
   // Emoji tap
-  const handleEmojiTap = async (index) => {
+  const handleEmojiTap = async index => {
     if (loading || submitted || tappedItem) return;
     const item = emojis[index];
     setTappedItem(item);
@@ -139,11 +196,19 @@ export default function EmojiRatingScreen({
 
       setTimeout(() => {
         Animated.sequence([
-          Animated.timing(cardAnim, { toValue: 0.96, duration: 80, useNativeDriver: true }),
-          Animated.spring(cardAnim, { toValue: 1, useNativeDriver: true, speed: 22, bounciness: 4 }),
+          Animated.timing(cardAnim, {
+            toValue: 0.96,
+            duration: 80,
+            useNativeDriver: true,
+          }),
+          Animated.spring(cardAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+            speed: 22,
+            bounciness: 4,
+          }),
         ]).start(() => goToThankYou());
       }, STAY_DURATION);
-
     } catch (err) {
       stopPulse();
       setLoading(false);
@@ -164,11 +229,13 @@ export default function EmojiRatingScreen({
     return (
       <View key={item.id} style={styles.emojiCell}>
         {isThis && (
-          <Animated.View style={[
-            styles.pulseRing,
-            { borderColor: item.color },
-            { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
-          ]} />
+          <Animated.View
+            style={[
+              styles.pulseRing,
+              { borderColor: item.color },
+              { opacity: pulseOpacity, transform: [{ scale: pulseAnim }] },
+            ]}
+          />
         )}
         <EmojiButton
           item={item}
@@ -200,7 +267,9 @@ export default function EmojiRatingScreen({
         <View style={styles.loadingCard}>
           <Text style={styles.errorIcon}>⚠️</Text>
           <Text style={styles.errorMsg}>{fetchError}</Text>
-          <Text style={styles.retryBtn} onPress={loadEmojis}>Tap to retry</Text>
+          <Text style={styles.retryBtn} onPress={loadEmojis}>
+            Tap to retry
+          </Text>
         </View>
       </View>
     );
@@ -211,23 +280,27 @@ export default function EmojiRatingScreen({
     <View style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
 
-      <Image 
-        source={require('../../assets/company_logo.jpeg')} 
-        style={styles.topLogo} 
-        resizeMode="contain" 
+      <Image
+        source={require('../../assets/company_logo.jpeg')}
+        style={styles.topLogo}
+        resizeMode="contain"
       />
 
-      <Animated.View style={[
-        styles.card,
-        { transform: [{ scale: cardAnim }], opacity: cardAnim },
-      ]}>
-
+      <Animated.View
+        style={[
+          styles.card,
+          { transform: [{ scale: cardAnim }], opacity: cardAnim },
+        ]}
+      >
         {/* FORM */}
         <Animated.View
-          style={[styles.page, {
-            opacity: formOpacity,
-            transform: [{ translateX: formSlide }],
-          }]}
+          style={[
+            styles.page,
+            {
+              opacity: formOpacity,
+              transform: [{ translateX: formSlide }],
+            },
+          ]}
           pointerEvents={submitted ? 'none' : 'auto'}
         >
           {/* Title block */}
@@ -251,10 +324,10 @@ export default function EmojiRatingScreen({
           {!isTablet && (
             <>
               <View style={styles.emojiRowPhone}>
-                {ROW1.map((item) => renderEmojiCell(item, emojis.indexOf(item)))}
+                {ROW1.map(item => renderEmojiCell(item, emojis.indexOf(item)))}
               </View>
               <View style={styles.emojiRowPhoneCentered}>
-                {ROW2.map((item) => renderEmojiCell(item, emojis.indexOf(item)))}
+                {ROW2.map(item => renderEmojiCell(item, emojis.indexOf(item)))}
               </View>
             </>
           )}
@@ -265,29 +338,32 @@ export default function EmojiRatingScreen({
               {loading ? (
                 <>
                   <ActivityIndicator size="small" color={tappedItem.color} />
-                  <Text style={[styles.statusText, { color: tappedItem.color }]}>
+                  <Text
+                    style={[styles.statusText, { color: tappedItem.color }]}
+                  >
                     {'  '}Saving {tappedItem.emoji}...
                   </Text>
                 </>
               ) : (
                 <Text style={[styles.statusText, { color: tappedItem.color }]}>
-                  {tappedItem.emoji}  {tappedItem.label} — saved!
+                  {tappedItem.emoji} {tappedItem.label} — saved!
                 </Text>
               )}
             </Animated.View>
           )}
-
         </Animated.View>
 
         {/* THANK YOU */}
-        <Animated.View style={[
-          styles.page,
-          styles.thankPage,
-          {
-            opacity: thankOpacity,
-            transform: [{ translateX: thankSlide }],
-          },
-        ]}>
+        <Animated.View
+          style={[
+            styles.page,
+            styles.thankPage,
+            {
+              opacity: thankOpacity,
+              transform: [{ translateX: thankSlide }],
+            },
+          ]}
+        >
           {/* onDone triggers auto-return to emoji view — no button needed */}
           <ThankYouCard
             selectedItem={tappedItem}
@@ -295,11 +371,11 @@ export default function EmojiRatingScreen({
             onDone={goBackToForm}
           />
         </Animated.View>
-
       </Animated.View>
 
       <Text style={styles.copyrightText}>
-        © {new Date().getFullYear()} eRav Technologies (Pvt) Ltd. All rights reserved.
+        © {new Date().getFullYear()} eRav Technologies (Pvt) Ltd. All rights
+        reserved.
       </Text>
     </View>
   );
@@ -449,7 +525,7 @@ const styles = StyleSheet.create({
   },
   errorIcon: {
     fontSize: 36,
-    marginBottom: 10
+    marginBottom: 10,
   },
   errorMsg: {
     fontSize: 13,
