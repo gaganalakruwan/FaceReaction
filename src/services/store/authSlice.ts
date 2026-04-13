@@ -7,14 +7,13 @@ export interface DeptSelection {
 }
 
 // Shape of the authenticated user
-// Mirrors the users + companies DB columns returned by the login response.
 export interface AuthUser {
   id: number;
   username: string;
   company_id: number;
   department_id: number | null;
   is_active: boolean;
-  usertype: string; // Added usertype
+  usertype: string;
 }
 
 export interface AuthCompany {
@@ -23,10 +22,10 @@ export interface AuthCompany {
 }
 
 export interface AuthState {
-  token: string | null;   // Sanctum personal access token
+  token: string | null;
   user: AuthUser | null;
   company: AuthCompany | null;
-  selection: DeptSelection | null; // Added selection
+  selection: DeptSelection | null;
 }
 
 // Initial state
@@ -34,7 +33,7 @@ const initialState: AuthState = {
   token: null,
   user: null,
   company: null,
-  selection: null, // Initialized selection
+  selection: null,
 };
 
 // Slice
@@ -43,7 +42,6 @@ const authSlice = createSlice({
   initialState,
 
   reducers: {
-    // Called after successful login - stores token + user + company
     setAuth: (
       state,
       action: PayloadAction<{ token: string; user: AuthUser; company: AuthCompany }>,
@@ -63,11 +61,10 @@ const authSlice = createSlice({
       state.token = null;
       state.user = null;
       state.company = null;
-      state.selection = null; // Cleared selection
+      state.selection = null;
     },
   },
 });
 
-// Export the new action alongside the others
 export const { setAuth, setSelection, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

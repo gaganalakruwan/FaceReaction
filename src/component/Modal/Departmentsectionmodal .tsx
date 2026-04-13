@@ -7,9 +7,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-// These match the shapes returned by GET /api/departments (managerApi)
-
+// Types
 export interface Section {
   id: number;
   name: string;
@@ -25,7 +23,6 @@ export interface Department {
   is_active?: boolean;
   users_count?: number;
   sections: Section[];
-  // optional display hints (not from API — caller can omit)
   icon?: string;
   color?: string;
 }
@@ -44,7 +41,7 @@ interface Props {
   onRetry?: () => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// Component
 export default function DepartmentSectionModal({
   visible,
   departments,
@@ -69,7 +66,7 @@ export default function DepartmentSectionModal({
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.94)).current;
 
-  // Panel slide (dept ↔ section)
+  // Panel slide (dept - section)
   const stepSlide = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -111,7 +108,7 @@ export default function DepartmentSectionModal({
     outputRange: [-REAL_SHEET_WIDTH, 0],
   });
 
-  // ── Body ───────────────────────────────────────────────────────────────────
+  // Body
   const renderBody = () => {
 
     if (loading) {
@@ -157,30 +154,27 @@ export default function DepartmentSectionModal({
       );
     }
 
-    // Active sections for selected dept — filter inactive if is_active present
+    // Active sections for selected dept - filter inactive if is_active present
     const activeSections = (selectedDept?.sections ?? []).filter(
       s => s.is_active !== false,
     );
 
     return (
       <>
-        {/* ── Step indicator ── */}
+        {/* Step indicator */}
         <View style={styles.stepRow}>
           <StepDot active number={1} done={step === 'section'} label="Department" />
           <View style={[styles.stepLine, step === 'section' && styles.stepLineActive]} />
           <StepDot active={step === 'section'} number={2} done={false} label="Section" />
         </View>
 
-        {/* ── Sliding panels ──
-            FIX: panels container has explicit height instead of flex:1
-            so the ScrollView inside gets a real measured parent.          */}
         <View style={[styles.panelClip, { height: PANEL_H, width: REAL_SHEET_WIDTH }]}>
           <Animated.View style={[
-            styles.panelRow, 
+            styles.panelRow,
             { transform: [{ translateX }], height: PANEL_H, width: REAL_SHEET_WIDTH * 2 }
           ]}>
 
-            {/* Panel 1 — Departments */}
+            {/* Panel 1 - Departments */}
             <View style={[styles.panel, { width: REAL_SHEET_WIDTH }]}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -220,7 +214,7 @@ export default function DepartmentSectionModal({
               </ScrollView>
             </View>
 
-            {/* Panel 2 — Sections */}
+            {/* Panel 2 - Sections */}
             <View style={[styles.panel, { width: REAL_SHEET_WIDTH }]}>
               {/* Back */}
               <TouchableOpacity style={styles.backRow} onPress={goToDept}>
@@ -311,7 +305,7 @@ export default function DepartmentSectionModal({
   );
 }
 
-// ─── Step dot helper ──────────────────────────────────────────────────────────
+// Step dot helper
 function StepDot({
   active, done, label, number,
 }: { active: boolean; done: boolean; label: string; number: number }) {
@@ -336,8 +330,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
-
-  // KEY FIX: explicit height so inner flex children get real space
   sheet: {
     backgroundColor: '#fff',
     borderRadius: 28,
@@ -349,83 +341,227 @@ const styles = StyleSheet.create({
       android: { elevation: 20 },
     }),
   },
-
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 22, paddingBottom: 14, gap: 14 },
-  headerIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#4CAF5015', alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A2E' },
-  headerSub: { fontSize: 12, color: '#8E8E93', marginTop: 2 },
-  divider: { height: 1, backgroundColor: '#F0F0F5', marginHorizontal: 20, marginBottom: 6 },
-
-  // Step indicator
-  stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 48, paddingVertical: 10, gap: 0 },
-  dotWrap: { alignItems: 'center', gap: 4 },
-  dot: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#E5E5EA', alignItems: 'center', justifyContent: 'center' },
-  dotActive: { backgroundColor: '#4CAF50' },
-  dotDone: { backgroundColor: '#34C759' },
-  dotNum: { fontSize: 12, fontWeight: '700', color: '#8E8E93' },
-  dotLabel: { fontSize: 11, color: '#8E8E93', fontWeight: '600' },
-  dotLabelActive: { color: '#4CAF50' },
-  stepLine: { flex: 1, height: 2, backgroundColor: '#E5E5EA', marginBottom: 20, marginHorizontal: 8 },
-  stepLineActive: { backgroundColor: '#4CAF50' },
-
-  // Panels — explicit height so ScrollView renders
-  panelClip: { overflow: 'hidden' },
-  panelRow: { flexDirection: 'row' },
-  panel: { height: '100%', flex: 1 },
-  listContent: { 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 22,
+    paddingBottom: 14,
+    gap: 14
+  },
+  headerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#4CAF5015',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1A1A2E'
+  },
+  headerSub: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 2
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F0F0F5',
+    marginHorizontal: 20,
+    marginBottom: 6
+  },
+  stepRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 48,
+    paddingVertical: 10,
+    gap: 0
+  },
+  dotWrap: {
+    alignItems: 'center',
+    gap: 4
+  },
+  dot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#E5E5EA',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  dotActive: {
+    backgroundColor: '#4CAF50'
+  },
+  dotDone: {
+    backgroundColor: '#34C759'
+  },
+  dotNum: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#8E8E93'
+  },
+  dotLabel: {
+    fontSize: 11,
+    color: '#8E8E93',
+    fontWeight: '600'
+  },
+  dotLabelActive: {
+    color: '#4CAF50'
+  },
+  stepLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#E5E5EA',
+    marginBottom: 20,
+    marginHorizontal: 8
+  },
+  stepLineActive: {
+    backgroundColor: '#4CAF50'
+  },
+  panelClip: {
+    overflow: 'hidden'
+  },
+  panelRow: {
+    flexDirection: 'row'
+  },
+  panel: {
+    height: '100%',
+    flex: 1
+  },
+  listContent: {
     width: '100%',
     paddingHorizontal: 20,
     paddingBottom: 20,
-   },
-
-  // List items
-  listItem: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingVertical: 14, 
-    paddingHorizontal: 14, 
-    borderRadius: 16, 
-    marginBottom: 8, 
-    backgroundColor: '#F9F9FB', 
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    marginBottom: 8,
+    backgroundColor: '#F9F9FB',
     borderWidth: 1.5,
     borderColor: 'transparent',
-    gap: 12 
+    gap: 12
   },
-  listItemActive: { backgroundColor: '#4CAF5010', borderColor: '#4CAF5040' },
-  itemIcon: { width: 38, height: 38, borderRadius: 11, backgroundColor: '#4CAF5018', alignItems: 'center', justifyContent: 'center' },
-  itemTextBlock: { flex: 1 },
-  itemName: { fontSize: 14, fontWeight: '600', color: '#1A1A2E' },
-  itemSub: { fontSize: 11, color: '#8E8E93', marginTop: 1 },
-  itemMeta: { fontSize: 11, color: '#C7C7CC', marginTop: 2 },
-  sectionDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#4CAF50', marginLeft: 6 },
-
-  // Back row
-  backRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 24, paddingBottom: 12 },
-  backTxt: { fontSize: 13, fontWeight: '700', color: '#4CAF50' },
-
-  footer: { 
-    paddingHorizontal: 20, 
+  listItemActive: {
+    backgroundColor: '#4CAF5010',
+    borderColor: '#4CAF5040'
+  },
+  itemIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
+    backgroundColor: '#4CAF5018',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  itemTextBlock: {
+    flex: 1
+  },
+  itemName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A2E'
+  },
+  itemSub: {
+    fontSize: 11,
+    color: '#8E8E93',
+    marginTop: 1
+  },
+  itemMeta: {
+    fontSize: 11,
+    color: '#C7C7CC',
+    marginTop: 2
+  },
+  sectionDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#4CAF50',
+    marginLeft: 6
+  },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 24,
+    paddingBottom: 12
+  },
+  backTxt: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4CAF50'
+  },
+  footer: {
+    paddingHorizontal: 20,
     paddingBottom: 30,
   },
-  // Confirm button
-  confirmBtn: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    backgroundColor: '#4CAF50', 
-    borderRadius: 18, 
-    paddingVertical: 15, 
-    gap: 8 
+  confirmBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4CAF50',
+    borderRadius: 18,
+    paddingVertical: 15,
+    gap: 8
   },
-  confirmBtnOff: { backgroundColor: '#C7C7CC' },
-  confirmTxt: { fontSize: 15, fontWeight: '800', color: '#fff' },
-
-  // Empty / loading / error states
-  state: { alignItems: 'center', justifyContent: 'center', paddingVertical: 28, paddingHorizontal: 24, gap: 10 },
-  loadingTxt: { fontSize: 14, color: '#8E8E93', fontWeight: '600' },
-  errorIconWrap: { width: 52, height: 52, borderRadius: 16, backgroundColor: '#FF3B3015', alignItems: 'center', justifyContent: 'center' },
-  errorTitle: { fontSize: 15, fontWeight: '800', color: '#1A1A2E' },
-  errorSub: { fontSize: 13, color: '#8E8E93', textAlign: 'center' },
-  retryBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#4CAF50', borderRadius: 12, paddingVertical: 9, paddingHorizontal: 18, gap: 6, marginTop: 4 },
-  retryTxt: { fontSize: 13, fontWeight: '700', color: '#fff' },
+  confirmBtnOff: {
+    backgroundColor: '#C7C7CC'
+  },
+  confirmTxt: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#fff'
+  },
+  state: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 28,
+    paddingHorizontal: 24,
+    gap: 10
+  },
+  loadingTxt: {
+    fontSize: 14,
+    color: '#8E8E93',
+    fontWeight: '600'
+  },
+  errorIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#FF3B3015',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  errorTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1A1A2E'
+  },
+  errorSub: {
+    fontSize: 13,
+    color: '#8E8E93',
+    textAlign: 'center'
+  },
+  retryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 18,
+    gap: 6,
+    marginTop: 4
+  },
+  retryTxt: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#fff'
+  },
 });

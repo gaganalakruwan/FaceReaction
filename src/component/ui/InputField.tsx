@@ -52,50 +52,50 @@ export default function InputField({
 }
 
 const styles = StyleSheet.create({
-  wrap:       { 
-    marginBottom: 16 
+  wrap: {
+    marginBottom: 16
   },
-  labelRow:   { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 6 
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6
   },
-  label:      { 
-    fontSize: 13, 
-    fontWeight: '700', 
-    color: '#1A1A2E' 
+  label: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1A1A2E'
   },
-  rightLabel: { 
-    fontSize: 13, 
-    fontWeight: '700', 
-    color: '#007AFF' 
+  rightLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#007AFF'
   },
   inputWrap: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5, borderRadius: 12,
     backgroundColor: '#FAFAFA',
     paddingHorizontal: 14,
   },
-  icon:  { 
-    fontSize: 16, 
-    marginRight: 8 
+  icon: {
+    fontSize: 16,
+    marginRight: 8
   },
   input: {
-    flex: 1, 
-    fontSize: 15, 
+    flex: 1,
+    fontSize: 15,
     color: '#1A1A2E',
     paddingVertical: 12,
   },
-  error: { 
-    fontSize: 12, 
-    color: '#FF3B30', 
-    marginTop: 4, 
-    fontWeight: '600' 
+  error: {
+    fontSize: 12,
+    color: '#FF3B30',
+    marginTop: 4,
+    fontWeight: '600'
   },
-  hint:  { 
-    fontSize: 12, 
-    color: '#8E8E93', 
-    marginTop: 4 
+  hint: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 4
   },
 });

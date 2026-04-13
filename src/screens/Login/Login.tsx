@@ -1,19 +1,18 @@
-import React, { useState }            from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   KeyboardAvoidingView, Platform,
   StatusBar,
 } from 'react-native';
-import { useDispatch }               from 'react-redux';
-import Icon                          from 'react-native-vector-icons/MaterialIcons';
-
-import { login }                     from '../../api/authApi';
-import { setAuth }                   from '../../api/store/authSlice';
-import { AppDispatch }               from '../../api/store/store';
-import { ApiError }                  from '../../api/client';
-import InputField                    from '../../component/ui/InputField';
-import Button                        from '../../component/ui/Button';
-import Card                          from '../../component/ui/Card';
+import { useDispatch } from 'react-redux';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { login } from '../../services/authService';
+import { setAuth } from '../../services/store/authSlice';
+import { AppDispatch } from '../../services/store/store';
+import { ApiError } from '../../services/apiService';
+import InputField from '../../component/ui/InputField';
+import Button from '../../component/ui/Button';
+import Card from '../../component/ui/Card';
 
 interface LoginScreenProps { navigation: any }
 
@@ -24,8 +23,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
@@ -138,16 +137,71 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   );
 }
 
+// styles
 const styles = StyleSheet.create({
-  screen       : { flexGrow: 1, backgroundColor: '#F2F2F7', padding: 24, justifyContent: 'center' },
-  logoBlock    : { alignItems: 'center', marginBottom: 28 },
-  logoCircle   : { width: 80, height: 80, borderRadius: 22, backgroundColor: '#4CAF50', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#4CAF50', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 14, elevation: 8 },
-  appName      : { fontSize: 22, fontWeight: '900', color: '#1A1A2E', marginBottom: 4 },
-  tagline      : { fontSize: 13, color: '#8E8E93' },
-  formCard     : { marginBottom: 20 },
-  formTitle    : { fontSize: 20, fontWeight: '900', color: '#1A1A2E', marginBottom: 4 },
-  formSub      : { fontSize: 13, color: '#8E8E93', marginBottom: 20 },
-  errorBanner  : { backgroundColor: '#FF3B3012', borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: '#FF3B3030' },
-  errorBannerTxt: { fontSize: 13, color: '#FF3B30', fontWeight: '600' },
-  loginBtn     : { marginTop: 8, borderRadius: 16 },
+  screen: {
+    flexGrow: 1,
+    backgroundColor: '#F2F2F7',
+    padding: 24,
+    justifyContent: 'center'
+  },
+  logoBlock: {
+    alignItems: 'center',
+    marginBottom: 28
+  },
+  logoCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 22,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 8
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#1A1A2E',
+    marginBottom: 4
+  },
+  tagline: {
+    fontSize: 13,
+    color: '#8E8E93'
+  },
+  formCard: {
+    marginBottom: 20
+  },
+  formTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#1A1A2E',
+    marginBottom: 4
+  },
+  formSub: {
+    fontSize: 13,
+    color: '#8E8E93',
+    marginBottom: 20
+  },
+  errorBanner: {
+    backgroundColor: '#FF3B3012',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FF3B3030'
+  },
+  errorBannerTxt: {
+    fontSize: 13,
+    color: '#FF3B30',
+    fontWeight: '600'
+  },
+  loginBtn: {
+    marginTop: 8,
+    borderRadius: 16
+  },
 });

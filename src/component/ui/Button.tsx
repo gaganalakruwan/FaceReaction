@@ -18,15 +18,15 @@ interface ButtonProps {
 }
 
 const COLORS = {
-  primary:   { bg: '#4CAF50', text: '#fff',     border: '#4CAF50' },
-  secondary: { bg: '#007AFF', text: '#fff',     border: '#007AFF' },
-  outline:   { bg: 'transparent', text: '#4CAF50', border: '#4CAF50' },
-  danger:    { bg: '#FF3B30', text: '#fff',     border: '#FF3B30' },
-  ghost:     { bg: '#F2F2F7', text: '#1A1A2E',  border: 'transparent' },
+  primary: { bg: '#4CAF50', text: '#fff', border: '#4CAF50' },
+  secondary: { bg: '#007AFF', text: '#fff', border: '#007AFF' },
+  outline: { bg: 'transparent', text: '#4CAF50', border: '#4CAF50' },
+  danger: { bg: '#FF3B30', text: '#fff', border: '#FF3B30' },
+  ghost: { bg: '#F2F2F7', text: '#1A1A2E', border: 'transparent' },
 };
 
 const SIZES = {
-  sm: { py: 8,  px: 14, fontSize: 13 },
+  sm: { py: 8, px: 14, fontSize: 13 },
   md: { py: 13, px: 20, fontSize: 15 },
   lg: { py: 16, px: 28, fontSize: 17 },
 };
@@ -36,11 +36,11 @@ export default function Button({
   loading = false, disabled = false,
   style, textStyle, size = 'md', icon,
 }: ButtonProps) {
-  const c    = COLORS[variant];
-  const s    = SIZES[size];
-  const bg   = color ?? c.bg;
-  const txt  = variant === 'outline' ? (color ?? c.text) : c.text;
-  const bdr  = color ?? c.border;
+  const c = COLORS[variant];
+  const s = SIZES[size];
+  const bg = color ?? c.bg;
+  const txt = variant === 'outline' ? (color ?? c.text) : c.text;
+  const bdr = color ?? c.border;
 
   return (
     <TouchableOpacity
@@ -57,11 +57,11 @@ export default function Button({
       {loading
         ? <ActivityIndicator color={txt} size="small" />
         : <>
-            {icon ? <Text style={[styles.icon, { fontSize: s.fontSize + 2 }]}>{icon}</Text> : null}
-            <Text style={[styles.label, { color: txt, fontSize: s.fontSize }, textStyle]}>
-              {label}
-            </Text>
-          </>
+          {icon ? <Text style={[styles.icon, { fontSize: s.fontSize + 2 }]}>{icon}</Text> : null}
+          <Text style={[styles.label, { color: txt, fontSize: s.fontSize }, textStyle]}>
+            {label}
+          </Text>
+        </>
       }
     </TouchableOpacity>
   );
@@ -76,7 +76,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     gap: 6,
   },
-  label:    { fontWeight: '800', letterSpacing: 0.2 },
-  icon:     {},
-  disabled: { opacity: 0.5 },
+  label: {
+    fontWeight: '800',
+    letterSpacing: 0.2
+  },
+  disabled: {
+    opacity: 0.5
+  },
 });

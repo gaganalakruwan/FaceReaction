@@ -17,8 +17,8 @@ const { width } = Dimensions.get('window');
 // Pick the right multiplier for this screen
 export const SCALE =
   width >= 1024 ? 2.2 :
-  width >= 600  ? 1.45 :
-  1.0;
+    width >= 600 ? 1.45 :
+      1.0;
 
 /**
  * scale(value) — multiply any size by the screen factor
@@ -29,5 +29,5 @@ export function scale(value) {
 }
 
 // Convenience: is this a large kiosk screen?
-export const IS_KIOSK  = width >= 1024;
+export const IS_KIOSK = width >= 1024;
 export const IS_TABLET = width >= 600;

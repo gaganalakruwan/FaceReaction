@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { store, persistor } from './src/api/store/store';
+import { store, persistor } from './src/services/store/store';
 import Navigation from './src/navigations/Navigation';
 
 const App = () => {

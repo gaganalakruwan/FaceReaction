@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, useWindowDimensions } from 'react-native';
 import EmojiButton from './EmojiButton'; 
-import { REACTION_LIST, saveReaction } from '../../api/reactionApi';
+import { REACTION_LIST, saveReaction } from '../../services/reactionService';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const titleEn = 'How do you rate our service?';

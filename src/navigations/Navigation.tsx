@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
-import { RootState } from '../api/store/store';
+import { RootState } from '../services/store/store';
 import Home from '../screens/Home/Home';
 import Login from '../screens/Login/Login';
 
