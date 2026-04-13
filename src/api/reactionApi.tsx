@@ -1,58 +1,58 @@
-const BASE_URL = 'http://192.168.1.122/face_api/';
+import { apiFetch } from './client';
 
-const EMOJI_MAP = {
-  'Excellent': { emoji: '😍', color: '#007AFF', bg: '#EBF4FF' },
-  'Good': { emoji: '🙂', color: '#34C759', bg: '#EDFFF2' },
-  'Average': { emoji: '😐', color: '#FFCC00', bg: '#FFFBEC' },
-  'Poor': { emoji: '🙁', color: '#FF9500', bg: '#FFF6EC' },
-  'Very Poor': { emoji: '☹️', color: '#FF3B30', bg: '#FFF0EF' },
+export interface ReactionType {
+  id: number;
+  type: string;
+  emoji: string;
+  sinhala: string;
+  tamil: string;
+  color: string;
+  bg: string;
+}
+
+export const EMOJI_MAP: Record<number, ReactionType> = {
+  1: { id: 1, type: 'Excellent', emoji: '😍', sinhala: 'විශිෂ්ටයි', tamil: 'மிகச்சிறந்த', color: '#007AFF', bg: '#EBF4FF' },
+  2: { id: 2, type: 'Good', emoji: '🙂', sinhala: 'හොඳයි', tamil: 'சிறந்த', color: '#34C759', bg: '#EDFFF2' },
+  3: { id: 3, type: 'Average', emoji: '😐', sinhala: 'සාමාන්‍යය', tamil: 'சராசரி', color: '#FFCC00', bg: '#FFFBEC' },
+  4: { id: 4, type: 'Poor', emoji: '🙁', sinhala: 'දුර්වලයි', tamil: 'மோசமான', color: '#FF9500', bg: '#FFF6EC' },
+  5: { id: 5, type: 'Very Poor', emoji: '☹️', sinhala: 'ඉතා දුර්වලයි', tamil: 'மிகவும் மோசமான', color: '#FF3B30', bg: '#FFF0EF' },
 };
 
-export async function getReactTypes(baseUrl = BASE_URL) {
-  const response = await fetch(`${baseUrl}/get_react_types.php`);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+export const REACTION_LIST = Object.values(EMOJI_MAP);
 
-  const json = await response.json();
-  if (json.status !== 'success') throw new Error(json.message || 'Failed to load emojis');
-
-  return json.data.map((row) => {
-    const mapped = EMOJI_MAP[row.type] ?? { emoji: '😶', color: '#8E8E93', bg: '#F5F5F5' };
-    return {
-      id: row.id,
-      label: row.type,
-      emoji: mapped.emoji,
-      color: mapped.color,
-      bg: mapped.bg,
-      sinhalaLabel: row.sinhala_type,
-      tamilLabel: row.tamil_type,
-    };
-  });
+export interface SaveReactionPayload {
+  reaction_id: number;
+  department_id: number | null;
+  section_id: number | null;
 }
 
-export async function saveReaction(reactTypeId, baseUrl = BASE_URL) {
-  console.log('📤 Sending react_type:', reactTypeId);
+export interface SaveReactionResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: number;
+    react_type_id: number;
+    department_id: number | null;
+    section_id: number | null;
+    created_at: string;
+  };
+}
 
-  const response = await fetch(`${baseUrl}/save_reaction.php`, {
+/**
+ * Saves the selected reaction to the backend.
+ * Token is automatically injected by apiFetch via Redux store.
+ */
+export const saveReaction = async (
+  reactionId: number,
+  departmentId: number | null,
+  sectionId: number | null,
+): Promise<SaveReactionResponse> => {
+  return apiFetch<SaveReactionResponse>('/reactions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `react_type=${reactTypeId}`,
+    body: JSON.stringify({
+      reaction_id: reactionId,
+      department_id: departmentId,
+      section_id: sectionId,
+    }),
   });
-
-  const text = await response.text();
-  console.log('📥 Response:', text);
-
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-  let json;
-  try { json = JSON.parse(text); }
-  catch { throw new Error(`Invalid JSON: ${text.substring(0, 100)}`); }
-
-  if (json.status !== 'success') throw new Error(json.message || 'Server error');
-  return json;
-}
-
-export async function getReactions(baseUrl = BASE_URL) {
-  const response = await fetch(`${baseUrl}/get_reactions.php`);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return await response.json();
-}
+};

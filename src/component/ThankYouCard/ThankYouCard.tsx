@@ -5,39 +5,39 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import { scale } from '../../constants/scale'; 
+import { scale } from '../../constants/scale';
 
-const DISPLAY_DURATION = 1000;
+const DISPLAY_DURATION = 750; // Total display + exit ~ 1000ms
 
 // Ripple check circle
 function CheckCircle({ color }) {
   const circleScale = useRef(new Animated.Value(0)).current;
-  const opacity     = useRef(new Animated.Value(0)).current;
-  const ring1       = useRef(new Animated.Value(0)).current;
-  const ring2       = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const ring1 = useRef(new Animated.Value(0)).current;
+  const ring2 = useRef(new Animated.Value(0)).current;
 
   const SIZE = scale(80);
 
   useEffect(() => {
     Animated.sequence([
-      Animated.delay(150),
+      Animated.delay(50),
       Animated.parallel([
-        Animated.spring(circleScale, { toValue: 1, useNativeDriver: true, speed: 8, bounciness: 22 }),
-        Animated.timing(opacity,     { toValue: 1, duration: 100, useNativeDriver: true }),
+        Animated.spring(circleScale, { toValue: 1, useNativeDriver: true, speed: 16, bounciness: 15 }),
+        Animated.timing(opacity, { toValue: 1, duration: 80, useNativeDriver: true }),
       ]),
     ]).start();
-    setTimeout(() => Animated.timing(ring1, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 350);
-    setTimeout(() => Animated.timing(ring2, { toValue: 1, duration: 500, useNativeDriver: true }).start(), 600);
+    setTimeout(() => Animated.timing(ring1, { toValue: 1, duration: 300, useNativeDriver: true }).start(), 150);
+    setTimeout(() => Animated.timing(ring2, { toValue: 1, duration: 300, useNativeDriver: true }).start(), 250);
   }, []);
 
-  const ringStyle = (anim) => ({
-    position:    'absolute',
-    width:       SIZE,
-    height:      SIZE,
+  const ringStyle = (anim: any) => ({
+    position: 'absolute' as 'absolute',
+    width: SIZE,
+    height: SIZE,
     borderRadius: SIZE / 2,
     borderWidth: scale(2.5),
     borderColor: color,
-    opacity:   anim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 0] }),
+    opacity: anim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 0] }),
     transform: [{ scale: anim.interpolate({ inputRange: [0, 1], outputRange: [1, 2.6] }) }],
   });
 
@@ -46,18 +46,18 @@ function CheckCircle({ color }) {
       <Animated.View style={ringStyle(ring1)} />
       <Animated.View style={ringStyle(ring2)} />
       <Animated.View style={{
-        width:        SIZE,
-        height:       SIZE,
+        width: SIZE,
+        height: SIZE,
         borderRadius: SIZE / 2,
         backgroundColor: color,
-        alignItems:   'center',
+        alignItems: 'center',
         justifyContent: 'center',
         opacity,
-        transform:    [{ scale: circleScale }],
-        shadowColor:  color,
+        transform: [{ scale: circleScale }],
+        shadowColor: color,
         shadowOffset: { width: 0, height: scale(8) },
         shadowOpacity: 0.4,
-        shadowRadius:  scale(20),
+        shadowRadius: scale(20),
         elevation: 14,
       }}>
         <Text style={{ fontSize: scale(44), color: '#fff' }}>✓</Text>
@@ -68,11 +68,11 @@ function CheckCircle({ color }) {
 
 // Main component
 export default function ThankYouCard({ selectedItem, visible, onDone }) {
-  const slideAnim  = useRef(new Animated.Value(60)).current;
-  const fadeAnim   = useRef(new Animated.Value(0)).current;
-  const titleAnim  = useRef(new Animated.Value(0)).current;
-  const subAnim    = useRef(new Animated.Value(0)).current;
-  const badgeAnim  = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(60)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const titleAnim = useRef(new Animated.Value(0)).current;
+  const subAnim = useRef(new Animated.Value(0)).current;
+  const badgeAnim = useRef(new Animated.Value(0)).current;
   const badgePulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -80,29 +80,29 @@ export default function ThankYouCard({ selectedItem, visible, onDone }) {
 
     // Entrance
     Animated.parallel([
-      Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, speed: 8, bounciness: 10 }),
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 220, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, speed: 12, bounciness: 8 }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
     ]).start();
 
     // Stagger: title - subtitle - badge
-    [[titleAnim, 280], [subAnim, 420], [badgeAnim, 560]].forEach(([anim, delay]) => {
+    ([[titleAnim, 100], [subAnim, 180], [badgeAnim, 260]] as any).forEach(([anim, delay]: any) => {
       Animated.sequence([
         Animated.delay(delay),
-        Animated.spring(anim, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 8 }),
+        Animated.spring(anim, { toValue: 1, useNativeDriver: true, speed: 24, bounciness: 6 }),
       ]).start();
     });
 
     // Badge pulse loop
     const pulseTimer = setTimeout(() => {
       Animated.loop(Animated.sequence([
-        Animated.timing(badgePulse, { toValue: 1.07, duration: 700, useNativeDriver: true }),
-        Animated.timing(badgePulse, { toValue: 1,    duration: 700, useNativeDriver: true }),
+        Animated.timing(badgePulse, { toValue: 1.07, duration: 400, useNativeDriver: true }),
+        Animated.timing(badgePulse, { toValue: 1, duration: 400, useNativeDriver: true }),
       ])).start();
-    }, 900);
+    }, 450);
 
     // Auto exit
     const doneTimer = setTimeout(() => {
-      Animated.timing(fadeAnim, { toValue: 0, duration: 500, useNativeDriver: true })
+      Animated.timing(fadeAnim, { toValue: 0, duration: 250, useNativeDriver: true })
         .start(() => onDone?.());
     }, DISPLAY_DURATION);
 
@@ -149,36 +149,36 @@ export default function ThankYouCard({ selectedItem, visible, onDone }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems:     'center',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical:   scale(10),
+    paddingVertical: scale(10),
     paddingHorizontal: scale(8),
   },
   title: {
-    fontSize:      scale(30),
-    fontWeight:    '900',
-    color:         '#1A1A2E',
-    marginBottom:  scale(10),
+    fontSize: scale(30),
+    fontWeight: '900',
+    color: '#1A1A2E',
+    marginBottom: scale(10),
     letterSpacing: -0.5,
-    textAlign:     'center',
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize:  scale(15),
-    color:     '#8E8E93',
+    fontSize: scale(15),
+    color: '#8E8E93',
     textAlign: 'center',
     lineHeight: scale(24),
     marginBottom: scale(20),
     paddingHorizontal: scale(16),
   },
   badge: {
-    borderRadius:      scale(26),
-    paddingVertical:   scale(11),
+    borderRadius: scale(26),
+    paddingVertical: scale(11),
     paddingHorizontal: scale(26),
     borderWidth: 1.5,
   },
   badgeText: {
-    fontSize:      scale(14),
-    fontWeight:    '700',
+    fontSize: scale(14),
+    fontWeight: '700',
     letterSpacing: 0.2,
   },
 });

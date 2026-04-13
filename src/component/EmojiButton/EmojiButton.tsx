@@ -1,77 +1,89 @@
 import React, { useRef, useEffect } from 'react';
-import { Animated, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { Animated, Text, TouchableOpacity, StyleSheet, View, Platform } from 'react-native';
 
-export default function EmojiButton({ item, index, selected, onPress, disabled = false }) {
-  const scaleAnim   = useRef(new Animated.Value(1)).current;
-  const jumpAnim    = useRef(new Animated.Value(0)).current;
+interface EmojiButtonProps {
+  item: {
+    id: number;
+    type: string;
+    emoji: string;
+    sinhala: string;
+    tamil: string;
+    color: string;
+    bg: string;
+  };
+  index: number;
+  selected: number | null;
+  onPress: (index: number) => void;
+  disabled?: boolean;
+}
+
+export default function EmojiButton({ item, index, selected, onPress, disabled = false }: EmojiButtonProps) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const jumpAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim  = useRef(new Animated.Value(0)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
-  const isSelected   = selected === index;
+  const isSelected = selected === index;
   const hasSelection = selected !== null;
-  const isDimmed     = hasSelection && !isSelected;
+  const isDimmed = hasSelection && !isSelected;
 
-  // Tap handler
+  const springConfig = { useNativeDriver: true, speed: 20, bounciness: 8 };
+
+  const resetAnimations = () => {
+    Animated.parallel([
+      Animated.spring(jumpAnim, { toValue: 0, ...springConfig }),
+      Animated.spring(scaleAnim, { toValue: 1, ...springConfig }),
+      Animated.spring(rotateAnim, { toValue: 0, ...springConfig }),
+    ]).start();
+  };
+
   const handlePress = () => {
     if (disabled) return;
 
-    if (selected === index) {
-      Animated.parallel([
-        Animated.spring(jumpAnim,   { toValue: 0, useNativeDriver: true, speed: 20, bounciness: 8 }),
-        Animated.spring(scaleAnim,  { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 6 }),
-        Animated.spring(rotateAnim, { toValue: 0, useNativeDriver: true, speed: 20, bounciness: 6 }),
-      ]).start();
-    } else {
+    if (!isSelected) {
       Animated.sequence([
-        // Phase 1 — squeeze
-        Animated.spring(scaleAnim, { toValue: 0.72, useNativeDriver: true, speed: 90, bounciness: 0 }),
-        // Phase 2 — shoot up
+        Animated.spring(scaleAnim, { toValue: 0.8, useNativeDriver: true, speed: 50, bounciness: 0 }),
         Animated.parallel([
-          Animated.spring(jumpAnim,   { toValue: -72, useNativeDriver: true, speed: 38, bounciness: 0 }),
-          Animated.spring(scaleAnim,  { toValue: 1.6, useNativeDriver: true, speed: 38, bounciness: 0 }),
-          Animated.timing(rotateAnim, { toValue: 1,   duration: 170,         useNativeDriver: true }),
+          Animated.spring(jumpAnim, { toValue: -60, useNativeDriver: true, speed: 30, bounciness: 10 }),
+          Animated.spring(scaleAnim, { toValue: 1.4, useNativeDriver: true, speed: 30, bounciness: 10 }),
+          Animated.timing(rotateAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
         ]),
-        // Phase 3 — bouncy landing
         Animated.parallel([
-          Animated.spring(jumpAnim,   { toValue: -46, useNativeDriver: true, speed: 16, bounciness: 20 }),
-          Animated.spring(scaleAnim,  { toValue: 1.28, useNativeDriver: true, speed: 16, bounciness: 12 }),
-          Animated.spring(rotateAnim, { toValue: 0,   useNativeDriver: true, speed: 16, bounciness: 12 }),
+          Animated.spring(jumpAnim, { toValue: -15, useNativeDriver: true, speed: 15, bounciness: 15 }),
+          Animated.spring(scaleAnim, { toValue: 1.2, useNativeDriver: true, speed: 15, bounciness: 15 }),
         ]),
       ]).start();
     }
     onPress(index);
   };
 
-  // Sync with external selection
   useEffect(() => {
-    if (!isSelected) {
-      Animated.parallel([
-        Animated.spring(jumpAnim,   { toValue: 0, useNativeDriver: true, speed: 22, bounciness: 6 }),
-        Animated.spring(scaleAnim,  { toValue: 1, useNativeDriver: true, speed: 22, bounciness: 6 }),
-        Animated.spring(rotateAnim, { toValue: 0, useNativeDriver: true, speed: 22, bounciness: 6 }),
-      ]).start();
-    }
+    if (!isSelected) resetAnimations();
+    
     Animated.timing(opacityAnim, {
-      toValue: isDimmed ? 0.28 : 1,
-      duration: 210,
+      toValue: isDimmed ? 0.35 : 1,
+      duration: 250,
       useNativeDriver: true,
     }).start();
-  }, [selected]);
+  }, [selected, isSelected, isDimmed]);
 
-  const spin = rotateAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '18deg'] });
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '15deg'],
+  });
 
   return (
-    <Animated.View style={[
-      styles.wrapper,
-      {
-        opacity: opacityAnim,
-        transform: [{ translateY: jumpAnim }, { scale: scaleAnim }, { rotate: spin }],
-      },
-    ]}>
-
-      {/* Face circle */}
+    <Animated.View 
+      style={[
+        styles.wrapper, 
+        { 
+          opacity: opacityAnim,
+          transform: [{ translateY: jumpAnim }, { scale: scaleAnim }, { rotate: spin }] 
+        }
+      ]}
+    >
       <TouchableOpacity
-        activeOpacity={0.88}
+        activeOpacity={0.9}
         onPress={handlePress}
         disabled={disabled}
         style={[
@@ -79,93 +91,40 @@ export default function EmojiButton({ item, index, selected, onPress, disabled =
           isSelected && {
             backgroundColor: item.bg,
             borderColor: item.color,
-            borderWidth: 2.5,
-            shadowColor: item.color,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.45,
-            shadowRadius: 16,
-            elevation: 12,
+            borderWidth: 3,
+            ...Platform.select({
+              ios: { shadowColor: item.color, shadowOpacity: 0.5, shadowRadius: 15 },
+              android: { elevation: 15 },
+            }),
           },
         ]}
       >
         <Text style={styles.emoji}>{item.emoji}</Text>
       </TouchableOpacity>
 
-      {/* 3 labels */}
       <View style={styles.labelBlock}>
-
-        {/* Sinhala — bold, dark */}
-        {!!item.sinhalaLabel && (
-          <Text style={[styles.labelSi, isSelected && { color: item.color }]}>
-            {item.sinhalaLabel}
-          </Text>
-        )}
-
-        {/* Tamil — medium weight, lighter */}
-        {!!item.tamilLabel && (
-          <Text style={[styles.labelTa, isSelected && { color: item.color }]}>
-            {item.tamilLabel}
-          </Text>
-        )}
-
-        {/* English — lightest */}
-        <Text style={[styles.labelEn, isSelected && { color: item.color, fontWeight: '800' }]}>
-          {item.label}
-        </Text>
-
+        <Text style={[styles.labelSi, isSelected && { color: item.color }]}>{item.sinhala}</Text>
+        <Text style={[styles.labelTa, isSelected && { color: item.color }]}>{item.tamil}</Text>
+        <Text style={[styles.labelEn, isSelected && { color: item.color, fontWeight: '800' }]}>{item.type}</Text>
       </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: 'center',
-    width: 95,
-  },
+  wrapper: { alignItems: 'center', width: 100, marginHorizontal: 8 },
   btn: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    backgroundColor: '#FAFAFA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+    width: 80, height: 80, borderRadius: 40,
+    backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: '#E5E5EA',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 6 },
+      android: { elevation: 4 },
+    }),
   },
-  emoji: {
-    fontSize: 40,
-  },
-  labelBlock: {
-    alignItems: 'center',
-    marginTop: 10,
-    gap: 4,
-  },
-  labelSi: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2C2C2E',
-    textAlign: 'center',
-    letterSpacing: 0,
-    lineHeight: 16,
-  },
-  labelTa: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#4A4A4B',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  labelEn: {
-    fontSize: 12,
-    fontWeight: '400',
-    color: '#8E8E93',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
+  emoji: { fontSize: 44, lineHeight: Platform.OS === 'android' ? 54 : undefined },
+  labelBlock: { alignItems: 'center', marginTop: 12, gap: 2 },
+  labelSi: { fontSize: 13, fontWeight: '700', color: '#2C2C2E', textAlign: 'center' },
+  labelTa: { fontSize: 12, fontWeight: '600', color: '#48484A', textAlign: 'center' },
+  labelEn: { fontSize: 11, fontWeight: '500', color: '#8E8E93', textAlign: 'center', textTransform: 'uppercase' },
 });
