@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Modal, TouchableOpacity,
+  View, Text, Modal, TouchableOpacity,
   Animated, ScrollView, ActivityIndicator,
-  Platform, Dimensions,
+  Platform,
   useWindowDimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -113,25 +113,32 @@ export default function DepartmentSectionModal({
 
     if (loading) {
       return (
-        <View style={styles.state}>
+        <View className="items-center justify-center py-7 px-6" style={{ gap: 10 }}>
           <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={styles.loadingTxt}>Loading departments…</Text>
+          <Text className="text-sm font-semibold text-[#8E8E93]">Loading departments…</Text>
         </View>
       );
     }
 
     if (error) {
       return (
-        <View style={styles.state}>
-          <View style={styles.errorIconWrap}>
+        <View className="items-center justify-center py-7 px-6" style={{ gap: 10 }}>
+          <View
+            className="w-13 h-13 rounded-2xl items-center justify-center"
+            style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: '#FF3B3015' }}
+          >
             <Icon name="wifi-off" size={28} color="#FF3B30" />
           </View>
-          <Text style={styles.errorTitle}>Couldn't load departments</Text>
-          <Text style={styles.errorSub}>{error}</Text>
+          <Text className="text-[15px] font-extrabold text-[#1A1A2E]">Couldn't load departments</Text>
+          <Text className="text-[13px] text-[#8E8E93] text-center">{error}</Text>
           {onRetry && (
-            <TouchableOpacity style={styles.retryBtn} onPress={onRetry}>
+            <TouchableOpacity
+              className="flex-row items-center bg-[#4CAF50] rounded-xl py-[9px] px-[18px] mt-1"
+              style={{ gap: 6 }}
+              onPress={onRetry}
+            >
               <Icon name="refresh" size={15} color="#fff" />
-              <Text style={styles.retryTxt}>Try again</Text>
+              <Text className="text-[13px] font-bold text-white">Try again</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -140,14 +147,18 @@ export default function DepartmentSectionModal({
 
     if (departments.length === 0) {
       return (
-        <View style={styles.state}>
+        <View className="items-center justify-center py-7 px-6" style={{ gap: 10 }}>
           <Icon name="business-center" size={40} color="#C7C7CC" />
-          <Text style={styles.errorTitle}>No departments found</Text>
-          <Text style={styles.errorSub}>Ask your system administrator to add departments.</Text>
+          <Text className="text-[15px] font-extrabold text-[#1A1A2E]">No departments found</Text>
+          <Text className="text-[13px] text-[#8E8E93] text-center">Ask your system administrator to add departments.</Text>
           {onRetry && (
-            <TouchableOpacity style={styles.retryBtn} onPress={onRetry}>
+            <TouchableOpacity
+              className="flex-row items-center bg-[#4CAF50] rounded-xl py-[9px] px-[18px] mt-1"
+              style={{ gap: 6 }}
+              onPress={onRetry}
+            >
               <Icon name="refresh" size={15} color="#fff" />
-              <Text style={styles.retryTxt}>Retry</Text>
+              <Text className="text-[13px] font-bold text-white">Retry</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -162,48 +173,55 @@ export default function DepartmentSectionModal({
     return (
       <>
         {/* Step indicator */}
-        <View style={styles.stepRow}>
+        <View className="flex-row items-center justify-center px-12 py-[10px]">
           <StepDot active number={1} done={step === 'section'} label="Department" />
-          <View style={[styles.stepLine, step === 'section' && styles.stepLineActive]} />
+          <View
+            className="flex-1 h-[2px] mb-5 mx-2"
+            style={{ backgroundColor: step === 'section' ? '#4CAF50' : '#E5E5EA' }}
+          />
           <StepDot active={step === 'section'} number={2} done={false} label="Section" />
         </View>
 
-        <View style={[styles.panelClip, { height: PANEL_H, width: REAL_SHEET_WIDTH }]}>
+        <View style={{ overflow: 'hidden', height: PANEL_H, width: REAL_SHEET_WIDTH }}>
           <Animated.View style={[
-            styles.panelRow,
+            { flexDirection: 'row' },
             { transform: [{ translateX }], height: PANEL_H, width: REAL_SHEET_WIDTH * 2 }
           ]}>
 
             {/* Panel 1 - Departments */}
-            <View style={[styles.panel, { width: REAL_SHEET_WIDTH }]}>
+            <View style={{ height: '100%', flex: 1, width: REAL_SHEET_WIDTH }}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={{ width: '100%', paddingHorizontal: 20, paddingBottom: 20 }}
                 style={{ flex: 1 }}
               >
                 {departments.map(dept => (
                   <TouchableOpacity
                     key={dept.id}
+                    className="flex-row items-center py-[14px] px-[14px] rounded-2xl mb-2 border-[1.5px]"
                     style={[
-                      styles.listItem,
-                      selectedDept?.id === dept.id && styles.listItemActive,
+                      { gap: 12, backgroundColor: '#F9F9FB', borderColor: 'transparent' },
+                      selectedDept?.id === dept.id && { backgroundColor: '#4CAF5010', borderColor: '#4CAF5040' },
                     ]}
                     onPress={() => goToSection(dept)}
                     activeOpacity={0.72}
                   >
-                    <View style={styles.itemIcon}>
+                    <View
+                      className="items-center justify-center"
+                      style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: '#4CAF5018' }}
+                    >
                       <Icon
                         name={dept.icon ?? 'business'}
                         size={20}
                         color={dept.color ?? '#4CAF50'}
                       />
                     </View>
-                    <View style={styles.itemTextBlock}>
-                      <Text style={styles.itemName} numberOfLines={1}>{dept.name}</Text>
+                    <View className="flex-1">
+                      <Text className="text-sm font-semibold text-[#1A1A2E]" numberOfLines={1}>{dept.name}</Text>
                       {dept.name_sinhala ? (
-                        <Text style={styles.itemSub} numberOfLines={1}>{dept.name_sinhala}</Text>
+                        <Text className="text-[11px] text-[#8E8E93] mt-[1px]" numberOfLines={1}>{dept.name_sinhala}</Text>
                       ) : null}
-                      <Text style={styles.itemMeta} numberOfLines={1}>
+                      <Text className="text-[11px] text-[#C7C7CC] mt-[2px]" numberOfLines={1}>
                         {dept.sections.filter(s => s.is_active !== false).length} sections
                         {dept.users_count != null ? `  ·  ${dept.users_count} employees` : ''}
                       </Text>
@@ -215,36 +233,41 @@ export default function DepartmentSectionModal({
             </View>
 
             {/* Panel 2 - Sections */}
-            <View style={[styles.panel, { width: REAL_SHEET_WIDTH }]}>
+            <View style={{ height: '100%', flex: 1, width: REAL_SHEET_WIDTH }}>
               {/* Back */}
-              <TouchableOpacity style={styles.backRow} onPress={goToDept}>
+              <TouchableOpacity
+                className="flex-row items-center px-6 pb-3"
+                style={{ gap: 6 }}
+                onPress={goToDept}
+              >
                 <Icon name="arrow-back" size={17} color="#4CAF50" />
-                <Text style={styles.backTxt}>{selectedDept?.name ?? 'Back'}</Text>
+                <Text className="text-[13px] font-bold text-[#4CAF50]">{selectedDept?.name ?? 'Back'}</Text>
               </TouchableOpacity>
 
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={{ width: '100%', paddingHorizontal: 20, paddingBottom: 20 }}
                 style={{ flex: 1 }}
               >
                 {activeSections.length === 0 ? (
-                  <View style={styles.state}>
+                  <View className="items-center justify-center py-7 px-6" style={{ gap: 10 }}>
                     <Icon name="folder-open" size={32} color="#C7C7CC" />
-                    <Text style={styles.errorSub}>No sections in this department</Text>
+                    <Text className="text-[13px] text-[#8E8E93] text-center">No sections in this department</Text>
                   </View>
                 ) : (
                   activeSections.map(sec => (
                     <TouchableOpacity
                       key={sec.id}
+                      className="flex-row items-center py-[14px] px-[14px] rounded-2xl mb-2 border-[1.5px]"
                       style={[
-                        styles.listItem,
-                        selectedSection?.id === sec.id && styles.listItemActive,
+                        { gap: 12, backgroundColor: '#F9F9FB', borderColor: 'transparent' },
+                        selectedSection?.id === sec.id && { backgroundColor: '#4CAF5010', borderColor: '#4CAF5040' },
                       ]}
                       onPress={() => setSelectedSection(sec)}
                       activeOpacity={0.72}
                     >
-                      <View style={styles.sectionDot} />
-                      <Text style={styles.itemName} numberOfLines={1}>{sec.name}</Text>
+                      <View className="rounded-full bg-[#4CAF50]" style={{ width: 10, height: 10, borderRadius: 5, marginLeft: 6 }} />
+                      <Text className="text-sm font-semibold text-[#1A1A2E]" numberOfLines={1}>{sec.name}</Text>
                       {selectedSection?.id === sec.id && (
                         <Icon name="check-circle" size={22} color="#4CAF50" />
                       )}
@@ -254,15 +277,19 @@ export default function DepartmentSectionModal({
               </ScrollView>
 
               {/* Confirm */}
-              <View style={styles.footer}>
+              <View className="px-5 pb-[30px]">
                 <TouchableOpacity
-                  style={[styles.confirmBtn, !selectedSection && styles.confirmBtnOff]}
+                  className="flex-row items-center justify-center rounded-[18px] py-[15px]"
+                  style={[
+                    { gap: 8, backgroundColor: '#4CAF50' },
+                    !selectedSection && { backgroundColor: '#C7C7CC' },
+                  ]}
                   onPress={handleConfirm}
                   disabled={!selectedSection}
                   activeOpacity={0.85}
                 >
                   <Icon name="check" size={18} color="#fff" />
-                  <Text style={styles.confirmTxt}>Start Kiosk</Text>
+                  <Text className="text-[15px] font-extrabold text-white">Start Kiosk</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -275,28 +302,39 @@ export default function DepartmentSectionModal({
 
   return (
     <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
-      <View style={styles.overlay}>
+      <View
+        className="flex-1 justify-center items-center p-4"
+        style={{ backgroundColor: 'rgba(0,0,0,0.48)' }}
+      >
         <Animated.View
+          className="bg-white rounded-[28px] w-full overflow-hidden"
           style={[
-            styles.sheet,
             {
+              maxWidth: 480,
               opacity: opacityAnim,
               transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
               height: SHEET_HEIGHT,
+              ...Platform.select({
+                ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.18, shadowRadius: 36 },
+                android: { elevation: 20 },
+              }),
             },
           ]}
         >
           {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerIcon}>
+          <View className="flex-row items-center px-5 pt-[22px] pb-[14px]" style={{ gap: 14 }}>
+            <View
+              className="items-center justify-center"
+              style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#4CAF5015' }}
+            >
               <Icon name="location-city" size={22} color="#4CAF50" />
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.headerTitle}>Select Location</Text>
-              <Text style={styles.headerSub}>Choose your department and section to begin</Text>
+            <View className="flex-1">
+              <Text className="text-lg font-extrabold text-[#1A1A2E]">Select Location</Text>
+              <Text className="text-xs text-[#8E8E93] mt-[2px]">Choose your department and section to begin</Text>
             </View>
           </View>
-          <View style={styles.divider} />
+          <View className="h-[1px] bg-[#F0F0F5] mx-5 mb-[6px]" />
 
           {renderBody()}
         </Animated.View>
@@ -310,258 +348,26 @@ function StepDot({
   active, done, label, number,
 }: { active: boolean; done: boolean; label: string; number: number }) {
   return (
-    <View style={styles.dotWrap}>
-      <View style={[styles.dot, active && styles.dotActive, done && styles.dotDone]}>
+    <View className="items-center" style={{ gap: 4 }}>
+      <View
+        className="w-7 h-7 rounded-full items-center justify-center"
+        style={[
+          { backgroundColor: '#E5E5EA' },
+          active && { backgroundColor: '#4CAF50' },
+          done && { backgroundColor: '#34C759' },
+        ]}
+      >
         {done
           ? <Icon name="check" size={12} color="#fff" />
-          : <Text style={[styles.dotNum, active && { color: '#fff' }]}>{number}</Text>
+          : <Text className="text-xs font-bold" style={{ color: active ? '#fff' : '#8E8E93' }}>{number}</Text>
         }
       </View>
-      <Text style={[styles.dotLabel, active && styles.dotLabelActive]}>{label}</Text>
+      <Text
+        className="text-[11px] font-semibold"
+        style={{ color: active ? '#4CAF50' : '#8E8E93' }}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.48)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  sheet: {
-    backgroundColor: '#fff',
-    borderRadius: 28,
-    width: '100%',
-    maxWidth: 480,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.18, shadowRadius: 36 },
-      android: { elevation: 20 },
-    }),
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 14,
-    gap: 14
-  },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#4CAF5015',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1A1A2E'
-  },
-  headerSub: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 2
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#F0F0F5',
-    marginHorizontal: 20,
-    marginBottom: 6
-  },
-  stepRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 48,
-    paddingVertical: 10,
-    gap: 0
-  },
-  dotWrap: {
-    alignItems: 'center',
-    gap: 4
-  },
-  dot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#E5E5EA',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  dotActive: {
-    backgroundColor: '#4CAF50'
-  },
-  dotDone: {
-    backgroundColor: '#34C759'
-  },
-  dotNum: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#8E8E93'
-  },
-  dotLabel: {
-    fontSize: 11,
-    color: '#8E8E93',
-    fontWeight: '600'
-  },
-  dotLabelActive: {
-    color: '#4CAF50'
-  },
-  stepLine: {
-    flex: 1,
-    height: 2,
-    backgroundColor: '#E5E5EA',
-    marginBottom: 20,
-    marginHorizontal: 8
-  },
-  stepLineActive: {
-    backgroundColor: '#4CAF50'
-  },
-  panelClip: {
-    overflow: 'hidden'
-  },
-  panelRow: {
-    flexDirection: 'row'
-  },
-  panel: {
-    height: '100%',
-    flex: 1
-  },
-  listContent: {
-    width: '100%',
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    marginBottom: 8,
-    backgroundColor: '#F9F9FB',
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    gap: 12
-  },
-  listItemActive: {
-    backgroundColor: '#4CAF5010',
-    borderColor: '#4CAF5040'
-  },
-  itemIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
-    backgroundColor: '#4CAF5018',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  itemTextBlock: {
-    flex: 1
-  },
-  itemName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1A1A2E'
-  },
-  itemSub: {
-    fontSize: 11,
-    color: '#8E8E93',
-    marginTop: 1
-  },
-  itemMeta: {
-    fontSize: 11,
-    color: '#C7C7CC',
-    marginTop: 2
-  },
-  sectionDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#4CAF50',
-    marginLeft: 6
-  },
-  backRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 24,
-    paddingBottom: 12
-  },
-  backTxt: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#4CAF50'
-  },
-  footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  confirmBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#4CAF50',
-    borderRadius: 18,
-    paddingVertical: 15,
-    gap: 8
-  },
-  confirmBtnOff: {
-    backgroundColor: '#C7C7CC'
-  },
-  confirmTxt: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#fff'
-  },
-  state: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 28,
-    paddingHorizontal: 24,
-    gap: 10
-  },
-  loadingTxt: {
-    fontSize: 14,
-    color: '#8E8E93',
-    fontWeight: '600'
-  },
-  errorIconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: '#FF3B3015',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  errorTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1A1A2E'
-  },
-  errorSub: {
-    fontSize: 13,
-    color: '#8E8E93',
-    textAlign: 'center'
-  },
-  retryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    borderRadius: 12,
-    paddingVertical: 9,
-    paddingHorizontal: 18,
-    gap: 6,
-    marginTop: 4
-  },
-  retryTxt: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#fff'
-  },
-});

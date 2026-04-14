@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, TextInputProps, ViewStyle,
+  TextInputProps, ViewStyle,
 } from 'react-native';
 
 interface InputFieldProps extends TextInputProps {
   label?: string;
   error?: string;
   hint?: string;
-  rightLabel?: string;
+  rightLabel?: React.ReactNode;
   onRightPress?: () => void;
   containerStyle?: ViewStyle;
-  icon?: string;
+  icon?: React.ReactNode;
 }
 
 export default function InputField({
@@ -19,25 +19,34 @@ export default function InputField({
   containerStyle, icon, ...props
 }: InputFieldProps) {
   const [focused, setFocused] = useState(false);
+
   const borderColor = error ? '#FF3B30' : focused ? '#4CAF50' : '#E5E5EA';
 
   return (
-    <View style={[styles.wrap, containerStyle]}>
+    <View className="mb-4" style={containerStyle}>
+
       {(label || rightLabel) && (
-        <View style={styles.labelRow}>
-          {label && <Text style={styles.label}>{label}</Text>}
+        <View className="flex-row justify-between mb-1.5">
+          {label && (
+            <Text className="text-[13px] font-bold text-[#1A1A2E]">{label}</Text>
+          )}
           {rightLabel && (
             <TouchableOpacity onPress={onRightPress}>
-              <Text style={styles.rightLabel}>{rightLabel}</Text>
+              <Text className="text-[13px] font-bold text-[#007AFF]">{rightLabel}</Text>
             </TouchableOpacity>
           )}
         </View>
       )}
 
-      <View style={[styles.inputWrap, { borderColor }]}>
-        {icon && <Text style={styles.icon}>{icon}</Text>}
+      <View
+        className="flex-row items-center rounded-xl bg-[#FAFAFA] px-3.5"
+        style={{ borderWidth: 1.5, borderColor }}
+      >
+        {icon && (
+          <View className="mr-2">{icon}</View>
+        )}
         <TextInput
-          style={styles.input}
+          className="flex-1 text-[15px] text-[#1A1A2E] py-3"
           placeholderTextColor="#BCBCBC"
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -45,57 +54,13 @@ export default function InputField({
         />
       </View>
 
-      {error && <Text style={styles.error}>{error}</Text>}
-      {hint && !error && <Text style={styles.hint}>{hint}</Text>}
+      {error && (
+        <Text className="text-[12px] text-[#FF3B30] font-semibold mt-1">{error}</Text>
+      )}
+      {hint && !error && (
+        <Text className="text-[12px] text-[#8E8E93] mt-1">{hint}</Text>
+      )}
+
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    marginBottom: 16
-  },
-  labelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1A1A2E'
-  },
-  rightLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#007AFF'
-  },
-  inputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5, borderRadius: 12,
-    backgroundColor: '#FAFAFA',
-    paddingHorizontal: 14,
-  },
-  icon: {
-    fontSize: 16,
-    marginRight: 8
-  },
-  input: {
-    flex: 1,
-    fontSize: 15,
-    color: '#1A1A2E',
-    paddingVertical: 12,
-  },
-  error: {
-    fontSize: 12,
-    color: '#FF3B30',
-    marginTop: 4,
-    fontWeight: '600'
-  },
-  hint: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 4
-  },
-});

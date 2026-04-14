@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, useWindowDimensions } from 'react-native';
-import EmojiButton from './EmojiButton'; 
+import { View, Text, Modal, useWindowDimensions } from 'react-native';
+import EmojiButton from './EmojiButton';
 import { REACTION_LIST, saveReaction } from '../../services/reactionService';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,18 +10,18 @@ const titleTa = 'எங்கள் சேவையை நீங்கள் எ
 
 interface Props {
   department: string;
-  section: string; 
-  departmentId: number; // Added departmentId
-  sectionId: number;    // Added sectionId
+  section: string;
+  departmentId: number;
+  sectionId: number;
   onReset?: () => void;
 }
 
-export default function EmojiRatingScreen({ 
-  department, 
-  section, 
-  departmentId, 
-  sectionId, 
-  onReset 
+export default function EmojiRatingScreen({
+  department,
+  section,
+  departmentId,
+  sectionId,
+  onReset,
 }: Props) {
   const { width } = useWindowDimensions();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -40,16 +40,16 @@ export default function EmojiRatingScreen({
     try {
       // Pass the IDs to the API call
       await saveReaction(reaction.id, departmentId, sectionId);
-      
-      setTimeout(() => setShowThankYou(true), 600);
+
+      setTimeout(() => setShowThankYou(true), 200);
       setTimeout(() => {
         setShowThankYou(false);
         setSelectedId(null);
         setIsSubmitting(false);
-        onReset?.();
-      }, 4500);
+        onReset?.(); 
+      }, 1000);
     } catch (error) {
-      alert("Failed to save feedback.");
+      alert('Failed to save feedback.');
       setIsSubmitting(false);
       setSelectedId(null);
     }
@@ -67,123 +67,46 @@ export default function EmojiRatingScreen({
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        {/* Visual feedback of which department/section is active (optional display) */}
-        {/* <Text style={styles.deptLabel}>{department}</Text> */}
-        {/* <Text style={styles.sectionLabel}>{section}</Text> */}
-        
-        <Text style={styles.questionSi}>{titleSi}</Text>
-        <Text style={styles.questionTa}>{titleTa}</Text>
-        <Text style={styles.questionEn}>{titleEn}</Text>
+    <SafeAreaView className="flex-1 bg-[#F8F9FA] justify-center">
+      <View className="items-center mb-[60px]">
+        <Text className="text-xl font-bold text-[#1C1C1E] mt-[15px] text-center">{titleSi}</Text>
+        <Text className="text-lg font-bold text-[#1C1C1E] mt-2 text-center">{titleTa}</Text>
+        <Text className="text-xl font-semibold text-[#3A3A3C] mt-2 text-center">{titleEn}</Text>
       </View>
 
-      <View style={styles.emojiWrapper}>
+      <View className="px-[10px]">
         {isPhone ? (
           <>
-            <View style={styles.emojiRow}>
+            <View className="flex-row justify-center items-start">
               {REACTION_LIST.slice(0, 3).map((item, i) => renderEmoji(item, i))}
             </View>
-            <View style={[styles.emojiRow, { marginTop: 20 }]}>
+            <View className="flex-row justify-center items-start mt-5">
               {REACTION_LIST.slice(3, 5).map((item, i) => renderEmoji(item, i + 3))}
             </View>
           </>
         ) : (
-          <View style={styles.emojiRow}>
+          <View className="flex-row justify-center items-start">
             {REACTION_LIST.map((item, i) => renderEmoji(item, i))}
           </View>
         )}
       </View>
 
       <Modal visible={showThankYou} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.thankYouCard}>
-             <Text style={styles.thankYouEmoji}>❤️</Text>
-             <Text style={styles.thankYouTitle}>ස්තූතියි! | நன்றி! | Thank You!</Text>
-             <Text style={styles.thankYouSub}>Your feedback helps us improve.</Text>
+        <View
+          className="flex-1 justify-center items-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+        >
+          <View className="w-[85%] bg-white rounded-[25px] p-10 items-center elevation-10" style={{ elevation: 10 }}>
+            <Text style={{ fontSize: 50, marginBottom: 15 }}>❤️</Text>
+            <Text className="text-[22px] font-extrabold text-center">
+              ස්තූතියි! | நன்றி! | Thank You!
+            </Text>
+            <Text className="text-base text-[#8E8E93] mt-[10px]">
+              Your feedback helps us improve.
+            </Text>
           </View>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#F8F9FA', 
-    justifyContent: 'center' 
-  },
-  header: { 
-    alignItems: 'center', 
-    marginBottom: 60 
-  },
-  deptLabel: { 
-    fontSize: 16, 
-    fontWeight: '600', 
-    color: '#8E8E93', 
-    textTransform: 'uppercase' 
-  },
-  sectionLabel: { 
-    fontSize: 28, 
-    fontWeight: '800', 
-    color: '#1C1C1E' 
-  },
-  questionSi: { 
-    fontSize: 20, 
-    fontWeight: '700', 
-    color: '#1C1C1E', 
-    marginTop: 15, 
-    textAlign: 'center' 
-  },
-  questionTa: { 
-    fontSize: 18, 
-    fontWeight: '700', 
-    color: '#1C1C1E', 
-    marginTop: 8, 
-    textAlign: 'center' 
-  },
-  questionEn: { 
-    fontSize: 18, 
-    fontWeight: '600', 
-    color: '#3A3A3C', 
-    marginTop: 8, 
-    textAlign: 'center' 
-  },
-  emojiWrapper: { 
-    paddingHorizontal: 10 
-  },
-  emojiRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  modalOverlay: { 
-    flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.4)', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  thankYouCard: { 
-    width: '85%', 
-    backgroundColor: 'white', 
-    borderRadius: 25, 
-    padding: 40, 
-    alignItems: 'center', 
-    elevation: 10 
-  },
-  thankYouEmoji: { 
-    fontSize: 50, 
-    marginBottom: 15 
-  },
-  thankYouTitle: { 
-    fontSize: 22, 
-    fontWeight: '800', 
-    textAlign: 'center' 
-  },
-  thankYouSub: { 
-    fontSize: 16, 
-    color: '#8E8E93', 
-    marginTop: 10 
-  },
-});

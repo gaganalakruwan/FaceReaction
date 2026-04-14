@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, Text, TouchableOpacity,
   Platform, ActivityIndicator,
   StatusBar, Image,
 } from 'react-native';
@@ -80,42 +80,74 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const selection = savedSelection as DeptSelection | null;
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       {kioskActive && selection && (
-        <View style={styles.adminBar}>
-          <View style={styles.companyLogoContainer}>
-            <Image source={companyLogo} style={styles.headerLogo} />
-            <Text style={styles.companyName} numberOfLines={1}>
+        <View
+          className="flex-row items-center px-[14px] pb-[10px] bg-white border-b border-[#F0F0F5] z-10"
+          style={{
+            paddingTop: Platform.OS === 'ios' ? 54 : 14,
+            elevation: 2,
+          }}
+        >
+          {/* Company Logo + Name */}
+          <View className="flex-row items-center" style={{ gap: 8, maxWidth: '30%' }}>
+            <Image
+              source={companyLogo}
+              style={{ width: 28, height: 28, borderRadius: 14 }}
+            />
+            <Text
+              className="text-[13px] font-bold text-[#1A1A2E] shrink"
+              numberOfLines={1}
+            >
               {company?.name ?? 'Company'}
             </Text>
           </View>
 
-          <View style={{ flex: 1 }} />
+          <View className="flex-1" />
 
-          <TouchableOpacity style={styles.locationChip} onPress={handleChangeDept}>
+          {/* Location Chip */}
+          <TouchableOpacity
+            className="flex-row items-center rounded-[20px] px-3 py-[6px] border"
+            style={{ gap: 6, backgroundColor: '#4CAF5010', borderColor: '#4CAF5020' }}
+            onPress={handleChangeDept}
+          >
             <Icon name="location-city" size={14} color="#4CAF50" />
-            <Text style={styles.locationChipTxt} numberOfLines={1}>
+            <Text className="text-xs font-bold text-[#1A1A2E]" numberOfLines={1}>
               {selection.department.name} › {selection.section.name}
             </Text>
             <Icon name="edit" size={13} color="#8E8E93" />
           </TouchableOpacity>
 
-          <View style={{ flex: 1 }} />
+          <View className="flex-1" />
 
-          <View style={styles.userBadge}>
+          {/* User Badge */}
+          <View className="flex-row items-center" style={{ gap: 4 }}>
             <Icon name="account-circle" size={16} color="#8E8E93" />
-            <Text style={styles.userBadgeTxt}>{user?.username ?? 'Admin'}</Text>
+            <Text className="text-xs text-[#8E8E93] font-semibold">
+              {user?.username ?? 'Admin'}
+            </Text>
           </View>
 
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          {/* Logout Button */}
+          <TouchableOpacity
+            className="items-center justify-center ml-2"
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              backgroundColor: '#FF3B3010',
+            }}
+            onPress={handleLogout}
+          >
             <Icon name="logout" size={16} color="#FF3B30" />
           </TouchableOpacity>
         </View>
       )}
 
-      <View style={styles.kioskWrap} pointerEvents={kioskActive ? 'auto' : 'none'}>
+      {/* Kiosk area */}
+      <View className="flex-1" pointerEvents={kioskActive ? 'auto' : 'none'}>
         {kioskActive && selection ? (
           <EmojiRatingScreen
             key={`${selection.department.id}-${selection.section.id}`}
@@ -123,13 +155,18 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             sectionId={selection.section.id}
           />
         ) : (
-          <View style={styles.placeholder}>
+          <View className="flex-1 items-center justify-center">
             {deptLoading
               ? <ActivityIndicator size="large" color="#4CAF50" />
-              : <Image source={companyLogo} style={styles.placeholderLogo} />
+              : <Image
+                  source={companyLogo}
+                  style={{ width: 120, height: 120, borderRadius: 60, marginBottom: 10 }}
+                />
             }
             {!deptLoading && (
-              <Text style={styles.placeholderText}>Select Location to Begin</Text>
+              <Text className="text-[#8E8E93] text-base font-medium mt-[15px]">
+                Select Location to Begin
+              </Text>
             )}
           </View>
         )}
@@ -146,94 +183,3 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#FFFFFF'
-  },
-  adminBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingTop: Platform.OS === 'ios' ? 54 : 14,
-    paddingBottom: 10,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F5',
-    elevation: 2,
-    zIndex: 10
-  },
-  companyLogoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    maxWidth: '30%'
-  },
-  headerLogo: {
-    width: 28,
-    height: 28,
-    borderRadius: 14
-  },
-  companyName: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1A1A2E',
-    flexShrink: 1
-  },
-  locationChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4CAF5010',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: '#4CAF5020'
-  },
-  locationChipTxt: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1A1A2E'
-  },
-  userBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4
-  },
-  userBadgeTxt: {
-    fontSize: 12,
-    color: '#8E8E93',
-    fontWeight: '600'
-  },
-  logoutBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: '#FF3B3010',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8
-  },
-  kioskWrap: {
-    flex: 1
-  },
-  placeholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  placeholderLogo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 10
-  },
-  placeholderText: {
-    marginTop: 15,
-    color: '#8E8E93',
-    fontSize: 16,
-    fontWeight: '500'
-  },
-});

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
-  KeyboardAvoidingView, Platform,
-  StatusBar,
+  View, Text, ScrollView,
+  KeyboardAvoidingView, Platform, StatusBar,
+  StyleSheet,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,39 +23,27 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
       setError('Please enter your username and password.');
       return;
     }
-
     setLoading(true);
     setError('');
-
     try {
-      // POST /api/auth/login
-      // Response: { success, message, data: { token, user, company } }
       const response = await login({ username, password });
-
-      // ✅ company lives at response.data.company — NOT inside user
       const { token, user, company } = response.data;
-
-      // Persist token + user + company to Redux (AsyncStorage via redux-persist)
       dispatch(setAuth({ token, user, company }));
-
-      // Navigation.tsx watches token — swaps to MainStack automatically.
-      // replace() is a fallback in case the navigator hasn't re-rendered yet.
       navigation.replace('Home');
-
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Network error. Check your connection and try again.');
-      }
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'Network error. Check your connection and try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -63,32 +51,50 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" translucent />
 
       <ScrollView
+        className="flex-1 bg-[#F2F2F7]"
         contentContainerStyle={styles.screen}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Logo */}
-        <View style={styles.logoBlock}>
-          <View style={styles.logoCircle}>
+        {/* Logo block */}
+        <View className="items-center mb-7">
+          <View
+            className="w-20 h-20 rounded-[22px] bg-[#4CAF50] items-center justify-center mb-3"
+            style={{
+              shadowColor: '#4CAF50',
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.35,
+              shadowRadius: 14,
+              elevation: 8,
+            }}
+          >
             <Icon name="feedback" size={40} color="white" />
           </View>
-          <Text style={styles.appName}>Feedback Kiosk</Text>
-          <Text style={styles.tagline}>Sign in to your reactive feedback system</Text>
+          <Text className="text-[22px] font-black text-[#1A1A2E] mb-1">
+            Feedback Kiosk
+          </Text>
+          <Text className="text-[13px] text-[#8E8E93]">
+            Sign in to your reactive feedback system
+          </Text>
         </View>
 
         {/* Form card */}
-        <Card style={styles.formCard} padding={24} radius={24}>
-          <Text style={styles.formTitle}>Welcome back</Text>
-          <Text style={styles.formSub}>Enter your company credentials</Text>
+        <Card className="mb-5" padding={24} radius={24}>
+          <Text className="text-[20px] font-black text-[#1A1A2E] mb-1">
+            Welcome back
+          </Text>
+          <Text className="text-[13px] text-[#8E8E93] mb-5">
+            Enter your company credentials
+          </Text>
 
           {error ? (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerTxt}>
+            <View className="bg-[#FF3B3012] rounded-xl p-3 mb-4 border border-[#FF3B3030]">
+              <Text className="text-[13px] text-[#FF3B30] font-semibold">
                 <Icon name="error" size={14} color="#FF3B30" />{'  '}{error}
               </Text>
             </View>
@@ -129,9 +135,14 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             onPress={handleLogin}
             loading={loading}
             size="md"
-            style={styles.loginBtn}
+            style={{ marginTop: 8, borderRadius: 16 }}
           />
         </Card>
+
+        {/* Copyright */}
+        <Text className="text-center text-[11px] text-[#8E8E93] mt-2">
+          © {new Date().getFullYear()} eRav Technologies (Pvt) Ltd. All rights reserved.
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -144,64 +155,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F7',
     padding: 24,
     justifyContent: 'center'
-  },
-  logoBlock: {
-    alignItems: 'center',
-    marginBottom: 28
-  },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 22,
-    backgroundColor: '#4CAF50',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 8
-  },
-  appName: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#1A1A2E',
-    marginBottom: 4
-  },
-  tagline: {
-    fontSize: 13,
-    color: '#8E8E93'
-  },
-  formCard: {
-    marginBottom: 20
-  },
-  formTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#1A1A2E',
-    marginBottom: 4
-  },
-  formSub: {
-    fontSize: 13,
-    color: '#8E8E93',
-    marginBottom: 20
-  },
-  errorBanner: {
-    backgroundColor: '#FF3B3012',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#FF3B3030'
-  },
-  errorBannerTxt: {
-    fontSize: 13,
-    color: '#FF3B30',
-    fontWeight: '600'
-  },
-  loginBtn: {
-    marginTop: 8,
-    borderRadius: 16
   },
 });

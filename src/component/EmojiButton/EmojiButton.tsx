@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Animated, Text, TouchableOpacity, StyleSheet, View, Platform } from 'react-native';
+import { Animated, Text, TouchableOpacity, View, Platform } from 'react-native';
 
 interface EmojiButtonProps {
   item: {
@@ -74,20 +74,28 @@ export default function EmojiButton({ item, index, selected, onPress, disabled =
 
   return (
     <Animated.View
-      style={[
-        styles.wrapper,
-        {
-          opacity: opacityAnim,
-          transform: [{ translateY: jumpAnim }, { scale: scaleAnim }, { rotate: spin }]
-        }
-      ]}
+      className="items-center mx-2"
+      style={{
+        width: 100,
+        opacity: opacityAnim,
+        transform: [{ translateY: jumpAnim }, { scale: scaleAnim }, { rotate: spin }],
+      }}
     >
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={handlePress}
         disabled={disabled}
+        className="items-center justify-center bg-white border border-[#E5E5EA] rounded-full"
         style={[
-          styles.btn,
+          {
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            ...Platform.select({
+              ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 6 },
+              android: { elevation: 4 },
+            }),
+          },
           isSelected && {
             backgroundColor: item.bg,
             borderColor: item.color,
@@ -99,71 +107,34 @@ export default function EmojiButton({ item, index, selected, onPress, disabled =
           },
         ]}
       >
-        <Text style={styles.emoji}>{item.emoji}</Text>
+        <Text style={{ fontSize: 44, lineHeight: Platform.OS === 'android' ? 54 : undefined }}>
+          {item.emoji}
+        </Text>
       </TouchableOpacity>
 
-      <View style={styles.labelBlock}>
-        <Text style={[styles.labelSi, isSelected && { color: item.color }]}>{item.sinhala}</Text>
-        <Text style={[styles.labelTa, isSelected && { color: item.color }]}>{item.tamil}</Text>
-        <Text style={[styles.labelEn, isSelected && { color: item.color, fontWeight: '800' }]}>{item.type}</Text>
+      <View className="items-center mt-3" style={{ gap: 2 }}>
+        <Text
+          className="text-[13px] font-bold text-center"
+          style={{ color: isSelected ? item.color : '#2C2C2E' }}
+        >
+          {item.sinhala}
+        </Text>
+        <Text
+          className="text-xs font-semibold text-center"
+          style={{ color: isSelected ? item.color : '#48484A' }}
+        >
+          {item.tamil}
+        </Text>
+        <Text
+          className="text-[11px] text-center uppercase"
+          style={{
+            color: isSelected ? item.color : '#8E8E93',
+            fontWeight: isSelected ? '800' : '500',
+          }}
+        >
+          {item.type}
+        </Text>
       </View>
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: 'center',
-    width: 100,
-    marginHorizontal: 8
-  },
-  btn: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6
-      },
-      android: {
-        elevation: 4
-      },
-    }),
-  },
-  emoji: {
-    fontSize: 44,
-    lineHeight: Platform.OS === 'android' ? 54 : undefined
-  },
-  labelBlock: {
-    alignItems: 'center',
-    marginTop: 12,
-    gap: 2
-  },
-  labelSi: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#2C2C2E',
-    textAlign: 'center'
-  },
-  labelTa: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#48484A',
-    textAlign: 'center'
-  },
-  labelEn: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#8E8E93',
-    textAlign: 'center',
-    textTransform: 'uppercase'
-  },
-});

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  TouchableOpacity, Text, StyleSheet,
+  TouchableOpacity, Text,
   ActivityIndicator, ViewStyle, TextStyle,
 } from 'react-native';
 
@@ -17,18 +17,18 @@ interface ButtonProps {
   icon?: string;
 }
 
-const COLORS = {
-  primary: { bg: '#4CAF50', text: '#fff', border: '#4CAF50' },
-  secondary: { bg: '#007AFF', text: '#fff', border: '#007AFF' },
-  outline: { bg: 'transparent', text: '#4CAF50', border: '#4CAF50' },
-  danger: { bg: '#FF3B30', text: '#fff', border: '#FF3B30' },
-  ghost: { bg: '#F2F2F7', text: '#1A1A2E', border: 'transparent' },
+const VARIANT_CLASSES = {
+  primary: { btn: 'bg-[#4CAF50] border-[#4CAF50]', text: 'text-white' },
+  secondary: { btn: 'bg-[#007AFF] border-[#007AFF]', text: 'text-white' },
+  outline: { btn: 'bg-transparent border-[#4CAF50]', text: 'text-[#4CAF50]' },
+  danger: { btn: 'bg-[#FF3B30] border-[#FF3B30]', text: 'text-white' },
+  ghost: { btn: 'bg-[#F2F2F7] border-transparent', text: 'text-[#1A1A2E]' },
 };
 
-const SIZES = {
-  sm: { py: 8, px: 14, fontSize: 13 },
-  md: { py: 13, px: 20, fontSize: 15 },
-  lg: { py: 16, px: 28, fontSize: 17 },
+const SIZE_CLASSES = {
+  sm: { btn: 'py-2 px-3.5', text: 'text-[13px]', icon: 'text-[15px]' },
+  md: { btn: 'py-3.5 px-5', text: 'text-[15px]', icon: 'text-[17px]' },
+  lg: { btn: 'py-4 px-7', text: 'text-[17px]', icon: 'text-[19px]' },
 };
 
 export default function Button({
@@ -36,51 +36,53 @@ export default function Button({
   loading = false, disabled = false,
   style, textStyle, size = 'md', icon,
 }: ButtonProps) {
-  const c = COLORS[variant];
-  const s = SIZES[size];
-  const bg = color ?? c.bg;
-  const txt = variant === 'outline' ? (color ?? c.text) : c.text;
-  const bdr = color ?? c.border;
+  const v = VARIANT_CLASSES[variant];
+  const s = SIZE_CLASSES[size];
+
+  const colorOverride = color
+    ? {
+      backgroundColor: variant === 'outline' ? 'transparent' : color,
+      borderColor: color,
+    }
+    : undefined;
+
+  const textColorOverride = color
+    ? { color: variant === 'outline' ? color : '#fff' }
+    : undefined;
 
   return (
     <TouchableOpacity
-      style={[
-        styles.btn,
-        { backgroundColor: bg, borderColor: bdr, paddingVertical: s.py, paddingHorizontal: s.px },
-        disabled && styles.disabled,
-        style,
-      ]}
+      className={`
+        flex-row items-center justify-center
+        rounded-[14px] border-[1.5px] gap-1.5
+        ${v.btn} ${s.btn}
+        ${disabled ? 'opacity-50' : ''}
+      `}
+      style={[colorOverride, style]}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.82}
     >
-      {loading
-        ? <ActivityIndicator color={txt} size="small" />
-        : <>
-          {icon ? <Text style={[styles.icon, { fontSize: s.fontSize + 2 }]}>{icon}</Text> : null}
-          <Text style={[styles.label, { color: txt, fontSize: s.fontSize }, textStyle]}>
+      {loading ? (
+        <ActivityIndicator
+          color={textColorOverride?.color ?? (variant === 'outline' ? '#4CAF50' : '#fff')}
+          size="small"
+        />
+      ) : (
+        <>
+          {icon && (
+            <Text className={`${s.icon}`} style={textColorOverride}>
+              {icon}
+            </Text>
+          )}
+          <Text
+            className={`font-extrabold tracking-[0.2px] ${v.text} ${s.text}`}
+            style={[textColorOverride, textStyle]}
+          >
             {label}
           </Text>
         </>
-      }
+      )}
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  btn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    gap: 6,
-  },
-  label: {
-    fontWeight: '800',
-    letterSpacing: 0.2
-  },
-  disabled: {
-    opacity: 0.5
-  },
-});
