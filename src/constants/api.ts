@@ -1,5 +1,5 @@
 // Base URL
-export const BASE_URL = 'http://192.168.1.5:8000/api';
+export const BASE_URL = 'https://handiyekade.com/face_react_api/api';
 
 // Auth
 export const REGISTER = '/companies/register';

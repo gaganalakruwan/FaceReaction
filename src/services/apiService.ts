@@ -5,7 +5,7 @@ import axios, {
 } from 'axios';
 import { store } from './store/store';
 
-export const BASE_URL = 'http://192.168.1.3:8000/api';
+export const BASE_URL = 'https://handiyekade.com/face_react_api/api';
 
 // Custom Error Class
 export class ApiError extends Error {
