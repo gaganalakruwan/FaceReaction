@@ -3,6 +3,7 @@ import {
   View, Text, ScrollView,
   KeyboardAvoidingView, Platform, StatusBar,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,8 +24,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
     if (!username.trim() || !password) {
@@ -138,12 +139,18 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             style={{ marginTop: 8, borderRadius: 16 }}
           />
         </Card>
-
-        {/* Copyright */}
-        <Text className="text-center text-[11px] text-[#8E8E93] mt-2">
-          © {new Date().getFullYear()} eRav Technologies (Pvt) Ltd. All rights reserved.
-        </Text>
       </ScrollView>
+
+      {/* Copyright */}
+      <View className='flex-row items-center justify-center mb-8'>
+        <Text className="text-[12px] font-medium text-[#8E8E93]">
+          Powered By
+        </Text>
+        <Image
+          source={require('../../assets/footer_image.jpeg')}
+          style={{ width: 80, height: 24, resizeMode: 'contain', marginLeft: -4 }}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -154,6 +161,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#F2F2F7',
     padding: 24,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    paddingTop: 100,
   },
 });
