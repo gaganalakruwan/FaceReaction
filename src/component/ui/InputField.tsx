@@ -32,7 +32,11 @@ export default function InputField({
           )}
           {rightLabel && (
             <TouchableOpacity onPress={onRightPress}>
-              <Text className="text-[13px] font-bold text-[#007AFF]">{rightLabel}</Text>
+              {typeof rightLabel === 'string' ? (
+                <Text className="text-[13px] font-bold text-[#007AFF]">{rightLabel}</Text>
+              ) : (
+                rightLabel
+              )}
             </TouchableOpacity>
           )}
         </View>

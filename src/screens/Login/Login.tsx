@@ -85,7 +85,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         </View>
 
         {/* Form card */}
-        <Card className="mb-5" padding={24} radius={24}>
+        <Card style={{ marginBottom: 20 }} padding={24} radius={24}>
           <Text className="text-[20px] font-black text-[#1A1A2E] mb-1">
             Welcome back
           </Text>
@@ -139,18 +139,18 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             style={{ marginTop: 8, borderRadius: 16 }}
           />
         </Card>
-      </ScrollView>
 
-      {/* Copyright */}
-      <View className='flex-row items-center justify-center mb-8'>
-        <Text className="text-[12px] font-medium text-[#8E8E93]">
-          Powered By
-        </Text>
-        <Image
-          source={require('../../assets/footer_image.jpeg')}
-          style={{ width: 80, height: 24, resizeMode: 'contain', marginLeft: -4 }}
-        />
-      </View>
+        {/* Copyright */}
+        <View className='flex-row items-center justify-center mb-8 mt-20'>
+          <Text className="text-[12px] font-medium text-[#8E8E93]">
+            Powered By
+          </Text>
+          <Image
+            source={require('../../assets/footer_image.jpeg')}
+            style={{ width: 80, height: 24, resizeMode: 'contain', marginLeft: -4 }}
+          />
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

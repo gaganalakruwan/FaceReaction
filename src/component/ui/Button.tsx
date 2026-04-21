@@ -63,25 +63,30 @@ export default function Button({
       disabled={disabled || loading}
       activeOpacity={0.82}
     >
-      {loading ? (
+      {loading && (
         <ActivityIndicator
           color={textColorOverride?.color ?? (variant === 'outline' ? '#4CAF50' : '#fff')}
           size="small"
         />
-      ) : (
-        <>
-          {icon && (
-            <Text className={`${s.icon}`} style={textColorOverride}>
-              {icon}
-            </Text>
-          )}
-          <Text
-            className={`font-extrabold tracking-[0.2px] ${v.text} ${s.text}`}
-            style={[textColorOverride, textStyle]}
-          >
-            {label}
+      )}
+      
+      {!loading && icon && (
+        typeof icon === 'string' ? (
+          <Text className={`${s.icon}`} style={textColorOverride}>
+            {icon}
           </Text>
-        </>
+        ) : (
+          icon
+        )
+      )}
+      
+      {!loading && (
+        <Text
+          className={`font-extrabold tracking-[0.2px] ${v.text} ${s.text}`}
+          style={[textColorOverride, textStyle]}
+        >
+          {label}
+        </Text>
       )}
     </TouchableOpacity>
   );
