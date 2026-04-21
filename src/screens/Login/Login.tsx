@@ -38,7 +38,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       const response = await login({ username, password });
       const { token, user, company } = response.data;
       dispatch(setAuth({ token, user, company }));
-      navigation.replace('Home');
+      // navigation.replace('Home');
     } catch (err) {
       setError(
         err instanceof ApiError
@@ -141,7 +141,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         </Card>
 
         {/* Copyright */}
-        <View className='flex-row items-center justify-center mb-8 mt-20'>
+        <View className='flex-row items-center justify-center mb-8 mt-10'>
           <Text className="text-[12px] font-medium text-[#8E8E93]">
             Powered By
           </Text>

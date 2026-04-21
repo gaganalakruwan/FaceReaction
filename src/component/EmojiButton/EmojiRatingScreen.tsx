@@ -101,7 +101,7 @@ export default function EmojiRatingScreen({
             <Text className="text-[22px] font-extrabold text-center">
               ස්තූතියි! | நன்றி! | Thank You!
             </Text>
-            <Text className="text-base text-[#8E8E93] mt-[10px]">
+            <Text className="text-base text-[#8E8E93] mt-[10px] text-center">
               Your feedback helps us improve.
             </Text>
           </View>

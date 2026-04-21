@@ -74,7 +74,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
   const handleLogout = () => {
     dispatch(clearAuth());
-    navigation.replace('Login');
+    // navigation.replace('Login');
   };
 
   const selection = savedSelection as DeptSelection | null;
