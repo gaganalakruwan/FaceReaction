@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, useWindowDimensions } from 'react-native';
 import EmojiButton from './EmojiButton';
+import CommentModal from '../Modal/CommentModal';
 import { REACTION_LIST, saveReaction } from '../../services/reactionService';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,32 +27,55 @@ export default function EmojiRatingScreen({
   const { width } = useWindowDimensions();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showThankYou, setShowThankYou] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [pendingReaction, setPendingReaction] = useState<number | null>(null);
 
-  // Breakpoint for switching from 1 row to 2 rows
   const isPhone = width < 720;
 
-  const handleReactionPress = async (index: number) => {
-    if (isSubmitting) return;
+  const handleEmojiClick = (index: number) => {
     const reaction = REACTION_LIST[index];
     setSelectedId(reaction.id);
-    setIsSubmitting(true);
+    setPendingReaction(reaction.id);
+    setShowCommentModal(true);
+  };
 
+  // UPDATED: receives array of selected options
+  const handleSubmitWithComment = async (selectedOptions: string[]) => {
+    setShowCommentModal(false);
+    
     try {
-      // Pass the IDs to the API call
-      await saveReaction(reaction.id, departmentId, sectionId);
-
-      setTimeout(() => setShowThankYou(true), 200);
+      // Convert selected options to a readable string
+      const feedbackText = selectedOptions.join(', ');
+      await saveReaction(pendingReaction!, departmentId, sectionId, feedbackText);
+      setShowThankYou(true);
       setTimeout(() => {
         setShowThankYou(false);
         setSelectedId(null);
-        setIsSubmitting(false);
-        onReset?.(); 
-      }, 1000);
+        setPendingReaction(null);
+        onReset?.();
+      }, 1500);
     } catch (error) {
-      alert('Failed to save feedback.');
-      setIsSubmitting(false);
-      setSelectedId(null);
+      alert('Failed to save');
+      setShowCommentModal(false);
+    }
+  };
+
+  // User submitted WITHOUT selecting any option
+  const handleSubmitWithoutComment = async () => {
+    setShowCommentModal(false);
+    
+    try {
+      await saveReaction(pendingReaction!, departmentId, sectionId);
+      setShowThankYou(true);
+      setTimeout(() => {
+        setShowThankYou(false);
+        setSelectedId(null);
+        setPendingReaction(null);
+        onReset?.();
+      }, 1500);
+    } catch (error) {
+      alert('Failed to save');
+      setShowCommentModal(false);
     }
   };
 
@@ -61,8 +85,8 @@ export default function EmojiRatingScreen({
       item={item}
       index={index}
       selected={selectedId !== null ? REACTION_LIST.findIndex(r => r.id === selectedId) : null}
-      onPress={handleReactionPress}
-      disabled={isSubmitting}
+      onPress={handleEmojiClick}
+      disabled={false}
     />
   );
 
@@ -91,17 +115,22 @@ export default function EmojiRatingScreen({
         )}
       </View>
 
+      <CommentModal
+        visible={showCommentModal}
+        onClose={() => setShowCommentModal(false)}
+        onSubmitWithComment={handleSubmitWithComment}
+        onSubmitWithoutComment={handleSubmitWithoutComment}
+        departmentName={department}
+      />
+
       <Modal visible={showThankYou} transparent animationType="fade">
-        <View
-          className="flex-1 justify-center items-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
-        >
-          <View className="w-[85%] bg-white rounded-[25px] p-10 items-center elevation-10" style={{ elevation: 10 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+          <View style={{ width: '80%', backgroundColor: 'white', borderRadius: 25, padding: 30, alignItems: 'center' }}>
             <Text style={{ fontSize: 50, marginBottom: 15 }}>❤️</Text>
-            <Text className="text-[22px] font-extrabold text-center">
+            <Text style={{ fontSize: 22, fontWeight: 'bold', textAlign: 'center' }}>
               ස්තූතියි! | நன்றி! | Thank You!
             </Text>
-            <Text className="text-base text-[#8E8E93] mt-[10px] text-center">
+            <Text style={{ fontSize: 14, color: '#666', marginTop: 10, textAlign: 'center' }}>
               Your feedback helps us improve.
             </Text>
           </View>
