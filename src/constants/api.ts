@@ -1,5 +1,5 @@
 // api.ts
-export const BASE_URL = 'http://192.168.122.159:8000/api';
+export const BASE_URL = 'http://192.168.184.25:8000/api';
 
 // Auth
 export const REGISTER = '/companies/register';

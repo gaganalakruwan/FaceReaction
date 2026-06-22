@@ -51,7 +51,7 @@ export const submitOptions = async (selectedIds: number[]) => {
     
     // ✅ Send user_id with options
     const response = await apiService.post('/options/submit', {
-      user_id: userId,  // ✅ THIS WAS MISSING!
+      user_id: userId,  
       options: selectedIds,
     });
     

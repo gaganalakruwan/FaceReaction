@@ -6,7 +6,7 @@ import axios, {
 import { store } from './store/store';
 
 // ✅ Use API endpoint with /api
-export const BASE_URL = 'http://192.168.122.159:8000/api';
+export const BASE_URL = 'http://192.168.184.25:8000/api';
 // export const BASE_URL = 'https://handiyekade.com/face_react_api/api'; // Production
 
 // Custom Error Class
