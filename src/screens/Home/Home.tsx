@@ -12,7 +12,7 @@ import { RootState, AppDispatch } from '../../services/store/store';
 import { ApiError } from '../../services/apiService';
 import EmojiRatingScreen from '../../component/EmojiButton/EmojiRatingScreen';
 import DepartmentSectionModal from '../../component/Modal/Departmentsectionmodal ';
-import companyLogo from '../../assets/company_logo.jpeg';
+import companyLogo from '../../assets/image.png';
 
 interface HomeScreenProps { navigation: any }
 
@@ -91,17 +91,34 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             elevation: 2,
           }}
         >
-          {/* Company Logo + Name */}
-          <View className="flex-row items-center" style={{ gap: 8, maxWidth: '30%' }}>
-            <Image
-              source={companyLogo}
-              style={{ width: 28, height: 28, borderRadius: 14 }}
-            />
+          {/* ✅ Company Logo - IMPROVED SIZE */}
+          <View className="flex-row items-center" style={{ gap: 10, maxWidth: '30%' }}>
+            <View
+              className="items-center justify-center overflow-hidden"
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: '#F0F0F5',
+                borderWidth: 1,
+                borderColor: '#E5E5EA',
+              }}
+            >
+              <Image
+                source={companyLogo}
+                style={{ 
+                  width: 40, 
+                  height: 40, 
+                  borderRadius: 20,
+                }}
+                resizeMode="contain"
+              />
+            </View>
             <Text
-              className="text-[13px] font-bold text-[#1A1A2E] shrink"
+              className="text-[15px] font-bold text-[#1A1A2E] shrink"
               numberOfLines={1}
             >
-              {company?.name ?? 'Company'}
+              {company?.name ??'' }
             </Text>
           </View>
 
@@ -113,19 +130,19 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             style={{ gap: 6, backgroundColor: '#4CAF5010', borderColor: '#4CAF5020' }}
             onPress={handleChangeDept}
           >
-            <Icon name="location-city" size={14} color="#4CAF50" />
+            <Icon name="location-city" size={16} color="#4CAF50" />
             <Text className="text-xs font-bold text-[#1A1A2E]" numberOfLines={1}>
               {selection.department.name} › {selection.section.name}
             </Text>
-            <Icon name="edit" size={13} color="#8E8E93" />
+            <Icon name="edit" size={14} color="#8E8E93" />
           </TouchableOpacity>
 
           <View className="flex-1" />
 
           {/* User Badge */}
-          <View className="flex-row items-center" style={{ gap: 4 }}>
-            <Icon name="account-circle" size={16} color="#8E8E93" />
-            <Text className="text-xs text-[#8E8E93] font-semibold">
+          <View className="flex-row items-center" style={{ gap: 6 }}>
+            <Icon name="account-circle" size={18} color="#8E8E93" />
+            <Text className="text-sm text-[#8E8E93] font-semibold">
               {user?.username ?? 'Admin'}
             </Text>
           </View>
@@ -134,14 +151,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <TouchableOpacity
             className="items-center justify-center ml-2"
             style={{
-              width: 34,
-              height: 34,
+              width: 38,
+              height: 38,
               borderRadius: 10,
               backgroundColor: '#FF3B3010',
             }}
             onPress={handleLogout}
           >
-            <Icon name="logout" size={16} color="#FF3B30" />
+            <Icon name="logout" size={18} color="#FF3B30" />
           </TouchableOpacity>
         </View>
       )}
@@ -158,10 +175,34 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <View className="flex-1 items-center justify-center">
             {deptLoading
               ? <ActivityIndicator size="large" color="#4CAF50" />
-              : <Image
-                  source={companyLogo}
-                  style={{ width: 120, height: 120, borderRadius: 60, marginBottom: 10 }}
-                />
+              : (
+                <View
+                  className="items-center justify-center overflow-hidden"
+                  style={{
+                    width: 150,
+                    height: 150,
+                    borderRadius: 75,
+                    backgroundColor: '#F0F0F5',
+                    borderWidth: 2,
+                    borderColor: '#E5E5EA',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
+                    elevation: 5,
+                  }}
+                >
+                  <Image
+                    source={companyLogo}
+                    style={{ 
+                      width: 150, 
+                      height: 150, 
+                      borderRadius: 75,
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              )
             }
             {!deptLoading && (
               <Text className="text-[#8E8E93] text-base font-medium mt-[15px]">

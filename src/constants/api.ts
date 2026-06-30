@@ -1,5 +1,5 @@
-// Base URL
-export const BASE_URL = 'https://handiyekade.com/face_react_api/api';
+// api.ts
+export const BASE_URL = 'http://192.168.184.25:8000/api';
 
 // Auth
 export const REGISTER = '/companies/register';
@@ -10,3 +10,7 @@ export const GET_DEPARTMENTS = '/departments';
 
 // Reactions
 export const SAVE_REACTION = '/reactions';
+
+// Options - using OptionSubmissionController
+export const GET_OPTIONS = '/options';
+export const SUBMIT_OPTIONS = '/options/submit';
