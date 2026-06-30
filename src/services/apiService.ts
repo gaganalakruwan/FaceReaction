@@ -5,9 +5,7 @@ import axios, {
 } from 'axios';
 import { store } from './store/store';
 
-// ✅ Use API endpoint with /api
-export const BASE_URL = 'http://192.168.184.25:8000/api';
-// export const BASE_URL = 'https://handiyekade.com/face_react_api/api'; // Production
+export const BASE_URL = 'https://handiyekade.com/face_react_api/api';
 
 // Custom Error Class
 export class ApiError extends Error {
@@ -52,7 +50,7 @@ apiService.interceptors.request.use(
     error => Promise.reject(error),
 );
 
-// Response Interceptor
+// Response Interceptor - unwrap data & handle errors
 apiService.interceptors.response.use(
     (response: AxiosResponse) => response.data,
     error => {
@@ -76,6 +74,7 @@ apiService.interceptors.response.use(
             );
         }
 
+        // Everything else (403, 404, 500)
         return Promise.reject(
             new ApiError(data?.message ?? `Request failed (${status})`, status),
         );

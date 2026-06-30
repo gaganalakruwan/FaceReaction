@@ -15,9 +15,6 @@ import InputField from '../../component/ui/InputField';
 import Button from '../../component/ui/Button';
 import Card from '../../component/ui/Card';
 
-// ✅ Import the logo image - adjust path as needed
-import Logo from '../../assets/image.png';
-
 interface LoginScreenProps { navigation: any }
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
@@ -65,11 +62,10 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         contentContainerStyle={styles.screen}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Logo block - Replaced Icon with Image */}
+        {/* Logo block */}
         <View className="items-center mb-7">
-          {/* ✅ Logo Image instead of Icon */}
           <View
-            className="w-20 h-20 rounded-[22px] bg-[#4CAF50] items-center justify-center mb-3 overflow-hidden"
+            className="w-20 h-20 rounded-[22px] bg-[#4CAF50] items-center justify-center mb-3"
             style={{
               shadowColor: '#4CAF50',
               shadowOffset: { width: 0, height: 6 },
@@ -78,14 +74,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               elevation: 8,
             }}
           >
-            <Image
-              source={Logo}
-              style={{
-                width: 80,
-                height: 80,
-                resizeMode: 'contain',
-              }}
-            />
+            <Icon name="feedback" size={40} color="white" />
           </View>
           <Text className="text-[22px] font-black text-[#1A1A2E] mb-1">
             Feedback Kiosk
