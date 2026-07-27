@@ -91,13 +91,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             elevation: 2,
           }}
         >
-          {/* ✅ Company Logo - IMPROVED SIZE */}
+        
           <View className="flex-row items-center" style={{ gap: 10, maxWidth: '30%' }}>
             <View
               className="items-center justify-center overflow-hidden"
               style={{
-                width: 40,
-                height: 40,
+                width: 50,
+                height: 50,
                 borderRadius: 20,
                 backgroundColor: '#F0F0F5',
                 borderWidth: 1,
@@ -107,8 +107,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Image
                 source={companyLogo}
                 style={{ 
-                  width: 40, 
-                  height: 40, 
+                  width: 50, 
+                  height: 50, 
                   borderRadius: 20,
                 }}
                 resizeMode="contain"
