@@ -179,8 +179,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                 <View
                   className="items-center justify-center overflow-hidden"
                   style={{
-                    width: 150,
-                    height: 150,
+                    width: 200,
+                    height: 200,
                     borderRadius: 75,
                     backgroundColor: '#F0F0F5',
                     borderWidth: 2,
@@ -195,8 +195,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                   <Image
                     source={companyLogo}
                     style={{ 
-                      width: 150, 
-                      height: 150, 
+                      width: 200, 
+                      height: 200, 
                       borderRadius: 75,
                     }}
                     resizeMode="contain"
